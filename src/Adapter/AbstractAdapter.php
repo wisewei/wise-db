@@ -202,6 +202,12 @@ abstract class AbstractAdapter
         }
 
         // create a profiler object
+        $profiler = false;
+        if (array_key_exists(WiseDb::PROFILER, $this->_config)) {
+            $profiler = $this->_config[WiseDb::PROFILER];
+            unset($this->_config[WiseDb::PROFILER]);
+        }
+        $this->setProfiler($profiler);
     }
 
     /**
