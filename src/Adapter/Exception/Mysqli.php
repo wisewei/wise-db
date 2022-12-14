@@ -1,5 +1,4 @@
 <?php
-
 namespace WiseDb\Adapter\Exception;
 
 use WiseDb\Adapter\Exception\Adapter as AdapterException;
@@ -15,5 +14,4 @@ use WiseDb\Adapter\Exception\Adapter as AdapterException;
  */
 class Mysqli extends AdapterException
 {
-
 }

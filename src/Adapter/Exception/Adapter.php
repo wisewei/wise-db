@@ -1,11 +1,11 @@
 <?php
-
 namespace WiseDb\Adapter\Exception;
 
 use WiseDb\DBException;
 
 class Adapter extends DBException
 {
+
     protected $_chainedException = null;
 
     public function __construct($message = null, Adapter $e = null)
@@ -19,12 +19,11 @@ class Adapter extends DBException
 
     public function hasChainedException()
     {
-        return ($this->_chainedException!==null);
+        return ($this->_chainedException !== null);
     }
 
     public function getChainedException()
     {
         return $this->_chainedException;
     }
-
 }

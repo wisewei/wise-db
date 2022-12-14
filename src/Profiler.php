@@ -1,9 +1,9 @@
 <?php
-
 namespace WiseDb;
 
 use WiseDb\Profiler\Query as QueryProfiler;
 use WiseDb\Profiler\ProfilerException;
+
 /**
  * @category   Zend
  * @package    Zend_Db
@@ -115,7 +115,7 @@ class Profiler
      * @param  boolean $enable
      * @return $this Provides a fluent interface
      */
-    public function setEnabled(bool $enable):Profiler
+    public function setEnabled(bool $enable): Profiler
     {
         $this->_enabled = $enable;
 
@@ -128,7 +128,7 @@ class Profiler
      *
      * @return boolean
      */
-    public function getEnabled():bool
+    public function getEnabled(): bool
     {
         return $this->_enabled;
     }
@@ -142,7 +142,7 @@ class Profiler
      * @param  int|null $minimumSeconds OPTIONAL
      * @return $this Provides a fluent interface
      */
-    public function setFilterElapsedSecs(int $minimumSeconds = null):Profiler
+    public function setFilterElapsedSecs(int $minimumSeconds = null): Profiler
     {
         if (null === $minimumSeconds) {
             $this->_filterElapsedSecs = null;
@@ -159,7 +159,7 @@ class Profiler
      *
      * @return integer|null
      */
-    public function getFilterElapsedSecs():?int
+    public function getFilterElapsedSecs(): ?int
     {
         return $this->_filterElapsedSecs;
     }
@@ -173,7 +173,7 @@ class Profiler
      * @param  integer|null $queryTypes OPTIONAL
      * @return $this Provides a fluent interface
      */
-    public function setFilterQueryType(int $queryTypes = null):Profiler
+    public function setFilterQueryType(int $queryTypes = null): Profiler
     {
         $this->_filterTypes = $queryTypes;
 
@@ -187,7 +187,7 @@ class Profiler
      * @return integer|null
      * @see    Profiler::setFilterQueryType()
      */
-    public function getFilterQueryType():int
+    public function getFilterQueryType(): int
     {
         return $this->_filterTypes;
     }
@@ -199,7 +199,7 @@ class Profiler
      *
      * @return $this Provides a fluent interface
      */
-    public function clear():Profiler
+    public function clear(): Profiler
     {
         $this->_queryProfiles = array();
 
@@ -234,7 +234,7 @@ class Profiler
      */
     public function queryStart(string $queryText, $queryType = null)
     {
-        if (!$this->_enabled) {
+        if (! $this->_enabled) {
             return null;
         }
 
@@ -277,15 +277,15 @@ class Profiler
      * @return string   Inform that a query is stored or ignored.
      * @throws ProfilerException
      */
-    public function queryEnd(int $queryId):string
+    public function queryEnd(int $queryId): string
     {
         // Don't do anything if the Zend_Db_Profiler is not enabled.
-        if (!$this->_enabled) {
+        if (! $this->_enabled) {
             return self::IGNORED;
         }
 
         // Check for a valid query handle.
-        if (!isset($this->_queryProfiles[$queryId])) {
+        if (! isset($this->_queryProfiles[$queryId])) {
             throw new ProfilerException("Profiler has no query with handle '$queryId'.");
         }
 
@@ -315,7 +315,7 @@ class Profiler
          * If filtering by query type is enabled, only keep the query if
          * it was one of the allowed types.
          */
-        if (null !== $this->_filterTypes && !($qp->getQueryType() & $this->_filterTypes)) {
+        if (null !== $this->_filterTypes && ! ($qp->getQueryType() & $this->_filterTypes)) {
             unset($this->_queryProfiles[$queryId]);
             return self::IGNORED;
         }
@@ -333,7 +333,7 @@ class Profiler
      */
     public function getQueryProfile($queryId)
     {
-        if (!array_key_exists($queryId, $this->_queryProfiles)) {
+        if (! array_key_exists($queryId, $this->_queryProfiles)) {
             /**
              * @see ProfilerException
              */
@@ -419,7 +419,7 @@ class Profiler
         $numQueries = 0;
         foreach ($this->_queryProfiles as $qp) {
             if ($qp->hasEnded() && ($qp->getQueryType() & $queryType)) {
-                $numQueries++;
+                $numQueries ++;
             }
         }
 
@@ -443,5 +443,4 @@ class Profiler
 
         return current($this->_queryProfiles);
     }
-
 }

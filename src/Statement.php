@@ -98,7 +98,6 @@ abstract class Statement implements StatementInterface
      */
     protected function _prepare($sql)
     {
-
     }
 
     /**
@@ -110,8 +109,7 @@ abstract class Statement implements StatementInterface
         $sql = $this->_stripQuoted($sql);
 
         // split into text and params
-        $this->_sqlSplit = preg_split('/(\?|\:[a-zA-Z0-9_]+)/',
-            $sql, -1, PREG_SPLIT_DELIM_CAPTURE|PREG_SPLIT_NO_EMPTY);
+        $this->_sqlSplit = preg_split('/(\?|\:[a-zA-Z0-9_]+)/', $sql, - 1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
         // map params
         $this->_sqlParam = array();
@@ -171,7 +169,7 @@ abstract class Statement implements StatementInterface
         // remove "foo\"bar"
         $sql = preg_replace("/$q($qe|\\\\{2}|[^$q])*$q/", '', $sql);
         // remove 'foo\'bar'
-        if (!empty($q)) {
+        if (! empty($q)) {
             $sql = preg_replace("/$q($qe|[^$q])*$q/", '', $sql);
         }
 
@@ -187,9 +185,9 @@ abstract class Statement implements StatementInterface
      * @param mixed  $type   OPTIONAL
      * @return bool
      */
-    public function bindColumn(string $column, &$param, $type = null):bool
+    public function bindColumn(string $column, &$param, $type = null): bool
     {
-        $this->_bindColumn[$column] =& $param;
+        $this->_bindColumn[$column] = & $param;
         return true;
     }
 
@@ -207,7 +205,7 @@ abstract class Statement implements StatementInterface
      */
     public function bindParam($parameter, &$variable, $type = null, $length = null, $options = null): bool
     {
-        if (!is_int($parameter) && !is_string($parameter)) {
+        if (! is_int($parameter) && ! is_string($parameter)) {
             /**
              * @see StatementException
              */
@@ -236,7 +234,7 @@ abstract class Statement implements StatementInterface
         }
 
         // Finally we are assured that $position is valid
-        $this->_bindParam[$position] =& $variable;
+        $this->_bindParam[$position] = & $variable;
         return $this->_bindParam($position, $variable, $type, $length, $options);
     }
 
@@ -250,7 +248,7 @@ abstract class Statement implements StatementInterface
      * @throws StatementException
      * @throws AdapterException
      */
-    public function bindValue($parameter, $value, $type = null):bool
+    public function bindValue($parameter, $value, $type = null): bool
     {
         return $this->bindParam($parameter, $value, $type);
     }
@@ -301,7 +299,7 @@ abstract class Statement implements StatementInterface
      * @return array Collection of rows, each in a format by the fetch mode.
      * @throws StatementException
      */
-    public function fetchAll(int $style = null, int $col = null):array
+    public function fetchAll(int $style = null, int $col = null): array
     {
         $data = array();
         if ($style === WiseDb::FETCH_COLUMN && $col === null) {
@@ -326,10 +324,10 @@ abstract class Statement implements StatementInterface
      * @return string|bool One value from the next row of result set, or false.
      * @throws StatementException
      */
-    public function fetchColumn(int $col = 0):string
+    public function fetchColumn(int $col = 0): string
     {
         $row = $this->fetch(WiseDb::FETCH_NUM);
-        if (!is_array($row)) {
+        if (! is_array($row)) {
             return '';
         }
         return $row[$col];
@@ -347,7 +345,7 @@ abstract class Statement implements StatementInterface
     {
         $obj = new $class($config);
         $row = $this->fetch(WiseDb::FETCH_ASSOC);
-        if (!is_array($row)) {
+        if (! is_array($row)) {
             return false;
         }
         foreach ($row as $key => $val) {
@@ -377,7 +375,7 @@ abstract class Statement implements StatementInterface
      * @param mixed  $val Attribute value.
      * @return bool
      */
-    public function setAttribute(string $key, $val):bool
+    public function setAttribute(string $key, $val): bool
     {
         $this->_attribute[$key] = $val;
         return true;
@@ -389,7 +387,7 @@ abstract class Statement implements StatementInterface
      * @param int   $mode The fetch mode.
      * @throws StatementException
      */
-    public function setFetchMode(int $mode):bool
+    public function setFetchMode(int $mode): bool
     {
         switch ($mode) {
             case WiseDb::FETCH_NUM:
@@ -416,13 +414,13 @@ abstract class Statement implements StatementInterface
      * @param array $row
      * @return bool True
      */
-    public function _fetchBound(array $row):bool
+    public function _fetchBound(array $row): bool
     {
         foreach ($row as $key => $value) {
             // bindColumn() takes 1-based integer positions
             // but fetch() returns 0-based integer indexes
             if (is_int($key)) {
-                $key++;
+                $key ++;
             }
             // set results only to variables that were bound previously
             if (isset($this->_bindColumn[$key])) {
@@ -438,7 +436,7 @@ abstract class Statement implements StatementInterface
      *
      * @return AbstractAdapter
      */
-    public function getAdapter():AbstractAdapter
+    public function getAdapter(): AbstractAdapter
     {
         return $this->_adapter;
     }

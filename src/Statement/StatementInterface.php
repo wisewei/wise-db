@@ -16,7 +16,7 @@ interface StatementInterface
      * @return bool
      * @throws StatementException
      */
-    public function bindColumn(string $column, &$param, $type = null):bool;
+    public function bindColumn(string $column, &$param, $type = null): bool;
 
     /**
      * Binds a parameter to the specified variable name.
@@ -29,7 +29,7 @@ interface StatementInterface
      * @return bool
      * @throws StatementException
      */
-    public function bindParam($parameter, &$variable, $type = null, $length = null, $options = null):bool;
+    public function bindParam($parameter, &$variable, $type = null, $length = null, $options = null): bool;
 
     /**
      * Binds a value to a parameter.
@@ -40,7 +40,7 @@ interface StatementInterface
      * @return bool
      * @throws StatementException
      */
-    public function bindValue($parameter, $value, $type = null):bool;
+    public function bindValue($parameter, $value, $type = null): bool;
 
     /**
      * Closes the cursor, allowing the statement to be executed again.
@@ -48,7 +48,7 @@ interface StatementInterface
      * @return bool
      * @throws StatementException
      */
-    public function closeCursor():bool;
+    public function closeCursor(): bool;
 
     /**
      * Returns the number of columns in the result set.
@@ -57,7 +57,7 @@ interface StatementInterface
      * @return int The number of columns.
      * @throws StatementException
      */
-    public function columnCount():int;
+    public function columnCount(): int;
 
     /**
      * Retrieves the error code, if any, associated with the last operation on
@@ -66,7 +66,7 @@ interface StatementInterface
      * @return string error code.
      * @throws StatementException
      */
-    public function errorCode():string;
+    public function errorCode(): string;
 
     /**
      * Retrieves an array of error information, if any, associated with the
@@ -75,7 +75,7 @@ interface StatementInterface
      * @return array
      * @throws StatementException
      */
-    public function errorInfo():array;
+    public function errorInfo(): array;
 
     /**
      * Executes a prepared statement.
@@ -84,7 +84,7 @@ interface StatementInterface
      * @return bool
      * @throws StatementException
      */
-    public function execute(array $params = array()):bool;
+    public function execute(array $params = array()): bool;
 
     /**
      * Fetches a row from the result set.
@@ -95,7 +95,7 @@ interface StatementInterface
      * @return array Array, object, or scalar depending on fetch mode.
      * @throws StatementException
      */
-    public function fetch(int $style = null, int $cursor = null, int $offset = null):array;
+    public function fetch(int $style = null, int $cursor = null, int $offset = null): array;
 
     /**
      * Returns an array containing all of the result set rows.
@@ -105,7 +105,7 @@ interface StatementInterface
      * @return array Collection of rows, each in a format by the fetch mode.
      * @throws StatementException
      */
-    public function fetchAll(int $style = null, int $col = null):array;
+    public function fetchAll(int $style = null, int $col = null): array;
 
     /**
      * Returns a single column from the next row of a result set.
@@ -114,7 +114,7 @@ interface StatementInterface
      * @return string
      * @throws StatementException
      */
-    public function fetchColumn(int $col = 0):string;
+    public function fetchColumn(int $col = 0): string;
 
     /**
      * Fetches the next row and returns it as an object.
@@ -140,7 +140,7 @@ interface StatementInterface
      *
      * @return bool
      */
-    public function nextRowset():bool;
+    public function nextRowset(): bool;
 
     /**
      * Returns the number of rows affected by the execution of the
@@ -149,7 +149,7 @@ interface StatementInterface
      *
      * @return int     The number of rows affected.
      */
-    public function rowCount():int;
+    public function rowCount(): int;
 
     /**
      * Set a statement attribute.
@@ -158,7 +158,7 @@ interface StatementInterface
      * @param mixed  $val Attribute value.
      * @return bool
      */
-    public function setAttribute(string $key, $val):bool;
+    public function setAttribute(string $key, $val): bool;
 
     /**
      * Set the default fetch mode for this statement.
@@ -167,6 +167,5 @@ interface StatementInterface
      * @return bool
      * @throws StatementException
      */
-    public function setFetchMode(int $mode):bool;
-
+    public function setFetchMode(int $mode): bool;
 }

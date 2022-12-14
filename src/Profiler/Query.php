@@ -1,5 +1,4 @@
 <?php
-
 namespace WiseDb\Profiler;
 
 class Query

@@ -5,6 +5,7 @@ use WiseDb\DBException;
 
 class Statement extends DBException
 {
+
     /**
      * @var DBException
      */
@@ -15,7 +16,7 @@ class Statement extends DBException
      * @param null $code
      * @param DBException|null $chainedException
      */
-    public function __construct($message = null, $code = null, DBException $chainedException=null)
+    public function __construct($message = null, $code = null, DBException $chainedException = null)
     {
         $this->message = $message;
         $this->code = $code;
@@ -28,15 +29,15 @@ class Statement extends DBException
      *
      * @return bool
      */
-    public function hasChainedException():bool
+    public function hasChainedException(): bool
     {
-        return ($this->_chainedException!==null);
+        return ($this->_chainedException !== null);
     }
 
     /**
      * @return DBException|null
      */
-    public function getChainedException():DBException
+    public function getChainedException(): DBException
     {
         return $this->_chainedException;
     }

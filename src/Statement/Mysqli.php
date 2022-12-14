@@ -1,5 +1,4 @@
 <?php
-
 namespace WiseDb\Statement;
 
 use WiseDb\WiseDb;
@@ -50,9 +49,6 @@ class Mysqli extends Statement
         $this->_stmt = $mysqli->prepare($sql);
 
         if ($this->_stmt === false || $mysqli->errno) {
-            /**
-             * @see MysqliStatementException
-             */
             throw new MysqliStatementException("Mysqli prepare error: " . $mysqli->error, $mysqli->errno);
         }
     }
@@ -67,7 +63,7 @@ class Mysqli extends Statement
      * @param mixed $options   OPTIONAL Other options.
      * @return bool
      */
-    protected function _bindParam($parameter, &$variable, $type = null, $length = null, $options = null):bool
+    protected function _bindParam($parameter, &$variable, $type = null, $length = null, $options = null): bool
     {
         return true;
     }
@@ -77,7 +73,7 @@ class Mysqli extends Statement
      *
      * @return bool
      */
-    public function close():bool
+    public function close(): bool
     {
         if ($this->_stmt) {
             $r = $this->_stmt->close();
@@ -92,7 +88,7 @@ class Mysqli extends Statement
      *
      * @return bool
      */
-    public function closeCursor():bool
+    public function closeCursor(): bool
     {
         if ($this->_stmt) {
             $mysqli = $this->_adapter->getConnection();
@@ -111,7 +107,7 @@ class Mysqli extends Statement
      *
      * @return int The number of columns.
      */
-    public function columnCount():int
+    public function columnCount(): int
     {
         if (isset($this->_meta) && $this->_meta) {
             return $this->_meta->field_count;
@@ -125,9 +121,9 @@ class Mysqli extends Statement
      *
      * @return string error code.
      */
-    public function errorCode():string
+    public function errorCode(): string
     {
-        if (!$this->_stmt) {
+        if (! $this->_stmt) {
             return false;
         }
         return substr($this->_stmt->sqlstate, 0, 5);
@@ -139,15 +135,15 @@ class Mysqli extends Statement
      *
      * @return array
      */
-    public function errorInfo():array
+    public function errorInfo(): array
     {
-        if (!$this->_stmt) {
+        if (! $this->_stmt) {
             return [];
         }
         return array(
             substr($this->_stmt->sqlstate, 0, 5),
             $this->_stmt->errno,
-            $this->_stmt->error,
+            $this->_stmt->error
         );
     }
 
@@ -159,9 +155,9 @@ class Mysqli extends Statement
      * @throws MysqliStatementException
      * @throws StatementException
      */
-    public function _execute(array $params = null):bool
+    public function _execute(array $params = null): bool
     {
-        if (!$this->_stmt) {
+        if (! $this->_stmt) {
             return false;
         }
 
@@ -177,29 +173,22 @@ class Mysqli extends Statement
             foreach ($params as $k => &$value) {
                 $stmtParams[$k] = &$value;
             }
-            call_user_func_array(
-                array($this->_stmt, 'bind_param'),
-                $stmtParams
-                );
+            call_user_func_array(array(
+                $this->_stmt,
+                'bind_param'
+            ), $stmtParams);
         }
 
         // execute the statement
         $retval = $this->_stmt->execute();
         if ($retval === false) {
-            /**
-             * @see MysqliStatementException
-             */
             throw new MysqliStatementException("Mysqli statement execute error : " . $this->_stmt->error, $this->_stmt->errno);
         }
-
 
         // retain metadata
         if ($this->_meta === null) {
             $this->_meta = $this->_stmt->result_metadata();
             if ($this->_stmt->errno) {
-                /**
-                 * @see MysqliStatementException
-                 */
                 throw new MysqliStatementException("Mysqli statement metadata error: " . $this->_stmt->error, $this->_stmt->errno);
             }
         }
@@ -226,14 +215,13 @@ class Mysqli extends Statement
 
             $this->_stmt->store_result();
             // bind to the result variables
-            call_user_func_array(
-                array($this->_stmt, 'bind_result'),
-                $this->_values
-            );
+            call_user_func_array(array(
+                $this->_stmt,
+                'bind_result'
+            ), $this->_values);
         }
         return $retval;
     }
-
 
     /**
      * Fetches a row from the result set.
@@ -244,20 +232,20 @@ class Mysqli extends Statement
      * @return mixed Array, object, or scalar depending on fetch mode.
      * @throws MysqliStatementException
      */
-    public function fetch(int $style = null, int $cursor = null, int $offset = null):array
+    public function fetch(int $style = null, int $cursor = null, int $offset = null): array
     {
-        if (!$this->_stmt) {
+        if (! $this->_stmt) {
             return [];
         }
         // fetch the next result
         $retval = $this->_stmt->fetch();
         switch ($retval) {
-	        case null: // end of data
-	        case false: // error occurred
-	            $this->_stmt->reset();
-	            return false;
-	        default:
-	            // fallthrough
+            case null: // end of data
+            case false: // error occurred
+                $this->_stmt->reset();
+                return false;
+            default:
+            // fallthrough
         }
 
         // make sure we have a fetch mode
@@ -291,9 +279,6 @@ class Mysqli extends Statement
                 $row = array_merge($values, $assoc);
                 return $this->_fetchBound($row);
             default:
-                /**
-                 * @see MysqliStatementException
-                 */
                 throw new MysqliStatementException("Invalid fetch mode '$style' specified");
         }
         return $row;
@@ -307,12 +292,9 @@ class Mysqli extends Statement
      * @return bool
      * @throws MysqliStatementException
      */
-    public function nextRowset():bool
+    public function nextRowset(): bool
     {
-        /**
-         * @see MysqliStatementException
-         */
-        throw new MysqliStatementException(__FUNCTION__.'() is not implemented');
+        throw new MysqliStatementException(__FUNCTION__ . '() is not implemented');
     }
 
     /**
@@ -322,13 +304,12 @@ class Mysqli extends Statement
      *
      * @return int|bool     The number of rows affected.
      */
-    public function rowCount():int
+    public function rowCount(): int
     {
-        if (!$this->_adapter) {
+        if (! $this->_adapter) {
             return 0;
         }
         $mysqli = $this->_adapter->getConnection();
         return $mysqli->affected_rows;
     }
-
 }

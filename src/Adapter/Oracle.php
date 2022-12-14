@@ -1,9 +1,7 @@
 <?php
-
 namespace WiseDb\Adapter;
 
 use WiseDb\WiseDb;
-
 use WiseDb\Statement\Oracle as OracleStatement;
 use WiseDb\Adapter\Exception\Oracle as OracleAdapterException;
 use WiseDb\Statement\Exception\Statement as StatementException;
@@ -17,6 +15,7 @@ use WiseDb\Statement\Exception\Statement as StatementException;
  */
 class Oracle extends AbstractAdapter
 {
+
     /**
      * User-provided configuration.
      *
@@ -30,10 +29,10 @@ class Oracle extends AbstractAdapter
      * @var array
      */
     protected $_config = array(
-        'dbname'       => null,
-        'username'     => null,
-        'password'     => null,
-        'persistent'   => false
+        'dbname' => null,
+        'username' => null,
+        'password' => null,
+        'persistent' => false
     );
 
     /**
@@ -51,9 +50,9 @@ class Oracle extends AbstractAdapter
         WiseDb::INT_TYPE    => WiseDb::INT_TYPE,
         WiseDb::BIGINT_TYPE => WiseDb::BIGINT_TYPE,
         WiseDb::FLOAT_TYPE  => WiseDb::FLOAT_TYPE,
-        'BINARY_DOUBLE'      => WiseDb::FLOAT_TYPE,
-        'BINARY_FLOAT'       => WiseDb::FLOAT_TYPE,
-        'NUMBER'             => WiseDb::FLOAT_TYPE,
+        'BINARY_DOUBLE'     => WiseDb::FLOAT_TYPE,
+        'BINARY_FLOAT'      => WiseDb::FLOAT_TYPE,
+        'NUMBER'            => WiseDb::FLOAT_TYPE,
     );
 
     /**
@@ -82,7 +81,7 @@ class Oracle extends AbstractAdapter
             return;
         }
 
-        if (!extension_loaded('oci8')) {
+        if (! extension_loaded('oci8')) {
             /**
              * @see OracleAdapterException
              */
@@ -100,7 +99,7 @@ class Oracle extends AbstractAdapter
                 $this->_config['charset']);
 
         // check the connection
-        if (!$this->_connection) {
+        if (! $this->_connection) {
             /**
              * @see OracleAdapterException
              */
@@ -113,7 +112,7 @@ class Oracle extends AbstractAdapter
      *
      * @return boolean
      */
-    public function isConnected():bool
+    public function isConnected(): bool
     {
         return (is_resource($this->_connection) && get_resource_type($this->_connection) == 'oci8 connection');
     }
@@ -148,8 +147,9 @@ class Oracle extends AbstractAdapter
     {
         if ($this->_lobAsString === null) {
             // if never set by user, we use driver option if it exists otherwise false
-            if (isset($this->_config['driver_options']) &&
-                isset($this->_config['driver_options']['lob_as_string'])) {
+            if (isset($this->_config['driver_options'])
+                && isset($this->_config['driver_options']['lob_as_string']))
+            {
                 $this->_lobAsString = (bool) $this->_config['driver_options']['lob_as_string'];
             } else {
                 $this->_lobAsString = false;
@@ -166,7 +166,7 @@ class Oracle extends AbstractAdapter
      * @throws StatementException
      * @throws OracleAdapterException
      */
-    public function prepare($sql):OracleStatement
+    public function prepare($sql): OracleStatement
     {
         $this->_connect();
         $stmt = new OracleStatement($this, $sql);
@@ -183,7 +183,7 @@ class Oracle extends AbstractAdapter
      * @param string $value     Raw string
      * @return string           Quoted string
      */
-    protected function _quote($value):string
+    protected function _quote($value): string
     {
         if (is_int($value) || is_float($value)) {
             return $value;
@@ -200,7 +200,7 @@ class Oracle extends AbstractAdapter
      * @param boolean $auto If true, heed the AUTO_QUOTE_IDENTIFIERS config option.
      * @return string The quoted identifier and alias.
      */
-    public function quoteTableAs($ident, $alias = null, $auto = false):string
+    public function quoteTableAs($ident, $alias = null, $auto = false): string
     {
         // Oracle doesn't allow the 'AS' keyword between the table identifier/expression and alias.
         return $this->_quoteIdentifierAs($ident, $alias, $auto, ' ');
@@ -217,7 +217,7 @@ class Oracle extends AbstractAdapter
     public function lastSequenceId($sequenceName)
     {
         $this->_connect();
-        $sql = 'SELECT '.$this->quoteIdentifier($sequenceName, true).'.CURRVAL FROM dual';
+        $sql = 'SELECT ' . $this->quoteIdentifier($sequenceName, true) . '.CURRVAL FROM dual';
         $value = $this->fetchOne($sql);
         return $value;
     }
@@ -233,7 +233,7 @@ class Oracle extends AbstractAdapter
     public function nextSequenceId($sequenceName)
     {
         $this->_connect();
-        $sql = 'SELECT '.$this->quoteIdentifier($sequenceName, true).'.NEXTVAL FROM dual';
+        $sql = 'SELECT ' . $this->quoteIdentifier($sequenceName, true) . '.NEXTVAL FROM dual';
         $value = $this->fetchOne($sql);
         return $value;
     }
@@ -277,7 +277,7 @@ class Oracle extends AbstractAdapter
      * @throws StatementException
      * @throws OracleAdapterException
      */
-    public function listTables():array
+    public function listTables(): array
     {
         $this->_connect();
         $sql = 'SELECT table_name FROM all_tables';
@@ -314,7 +314,7 @@ class Oracle extends AbstractAdapter
      * @throws StatementException
      * @todo Discover integer unsigned property.
      */
-    public function describeTable($tableName, $schemaName = null):array
+    public function describeTable($tableName, $schemaName = null): array
     {
         $version = $this->getServerVersion();
         if (($version === null) || version_compare($version, '9.0.0', '>=')) {
@@ -333,7 +333,7 @@ class Oracle extends AbstractAdapter
             }
             $sql .= ' ORDER BY TC.COLUMN_ID';
         } else {
-            $subSql="SELECT AC.OWNER, AC.TABLE_NAME, ACC.COLUMN_NAME, AC.CONSTRAINT_TYPE, ACC.POSITION
+            $subSql = "SELECT AC.OWNER, AC.TABLE_NAME, ACC.COLUMN_NAME, AC.CONSTRAINT_TYPE, ACC.POSITION
                 from ALL_CONSTRAINTS AC, ALL_CONS_COLUMNS ACC
                   WHERE ACC.CONSTRAINT_NAME = AC.CONSTRAINT_NAME
                     AND ACC.TABLE_NAME = AC.TABLE_NAME
@@ -345,7 +345,7 @@ class Oracle extends AbstractAdapter
                 $subSql .= ' AND UPPER(ACC.OWNER) = UPPER(:SCNAME)';
                 $bind[':SCNAME'] = $schemaName;
             }
-            $sql="SELECT TC.TABLE_NAME, TC.OWNER, TC.COLUMN_NAME, TC.DATA_TYPE,
+            $sql = "SELECT TC.TABLE_NAME, TC.OWNER, TC.COLUMN_NAME, TC.DATA_TYPE,
                     TC.DATA_DEFAULT, TC.NULLABLE, TC.COLUMN_ID, TC.DATA_LENGTH,
                     TC.DATA_SCALE, TC.DATA_PRECISION, CC.CONSTRAINT_TYPE, CC.POSITION
                 FROM ALL_TAB_COLUMNS TC, ($subSql) CC
@@ -364,22 +364,26 @@ class Oracle extends AbstractAdapter
          */
         $result = $stmt->fetchAll(WiseDb::FETCH_NUM);
 
-        $table_name      = 0;
-        $owner           = 1;
-        $column_name     = 2;
-        $data_type       = 3;
-        $data_default    = 4;
-        $nullable        = 5;
-        $column_id       = 6;
-        $data_length     = 7;
-        $data_scale      = 8;
-        $data_precision  = 9;
+        $table_name = 0;
+        $owner = 1;
+        $column_name = 2;
+        $data_type = 3;
+        $data_default = 4;
+        $nullable = 5;
+        $column_id = 6;
+        $data_length = 7;
+        $data_scale = 8;
+        $data_precision = 9;
         $constraint_type = 10;
-        $position        = 11;
+        $position = 11;
 
         $desc = array();
         foreach ($result as $key => $row) {
-            list ($primary, $primaryPosition, $identity) = array(false, null, false);
+            list ($primary, $primaryPosition, $identity) = array(
+                false,
+                null,
+                false
+            );
             if ($row[$constraint_type] == 'P') {
                 $primary = true;
                 $primaryPosition = $row[$position];
@@ -389,20 +393,20 @@ class Oracle extends AbstractAdapter
                 $identity = false;
             }
             $desc[$this->foldCase($row[$column_name])] = array(
-                'SCHEMA_NAME'      => $this->foldCase($row[$owner]),
-                'TABLE_NAME'       => $this->foldCase($row[$table_name]),
-                'COLUMN_NAME'      => $this->foldCase($row[$column_name]),
-                'COLUMN_POSITION'  => $row[$column_id],
-                'DATA_TYPE'        => $row[$data_type],
-                'DEFAULT'          => $row[$data_default],
-                'NULLABLE'         => (bool) ($row[$nullable] == 'Y'),
-                'LENGTH'           => $row[$data_length],
-                'SCALE'            => $row[$data_scale],
-                'PRECISION'        => $row[$data_precision],
-                'UNSIGNED'         => null, // @todo
-                'PRIMARY'          => $primary,
+                'SCHEMA_NAME' => $this->foldCase($row[$owner]),
+                'TABLE_NAME' => $this->foldCase($row[$table_name]),
+                'COLUMN_NAME' => $this->foldCase($row[$column_name]),
+                'COLUMN_POSITION' => $row[$column_id],
+                'DATA_TYPE' => $row[$data_type],
+                'DEFAULT' => $row[$data_default],
+                'NULLABLE' => (bool) ($row[$nullable] == 'Y'),
+                'LENGTH' => $row[$data_length],
+                'SCALE' => $row[$data_scale],
+                'PRECISION' => $row[$data_precision],
+                'UNSIGNED' => null, // @todo
+                'PRIMARY' => $primary,
                 'PRIMARY_POSITION' => $primaryPosition,
-                'IDENTITY'         => $identity
+                'IDENTITY' => $identity
             );
         }
         return $desc;
@@ -426,7 +430,7 @@ class Oracle extends AbstractAdapter
      */
     protected function _commit()
     {
-        if (!oci_commit($this->_connection)) {
+        if (! oci_commit($this->_connection)) {
             /**
              * @see OracleAdapterException
              */
@@ -443,7 +447,7 @@ class Oracle extends AbstractAdapter
      */
     protected function _rollBack()
     {
-        if (!oci_rollback($this->_connection)) {
+        if (! oci_rollback($this->_connection)) {
             /**
              * @see OracleAdapterException
              */
@@ -492,7 +496,7 @@ class Oracle extends AbstractAdapter
      * @return string
      * @throws OracleAdapterException
      */
-    public function limit($sql, $count, $offset = 0):string
+    public function limit($sql, $count, $offset = 0): string
     {
         $count = intval($count);
         if ($count <= 0) {
@@ -519,7 +523,7 @@ class Oracle extends AbstractAdapter
         $limit_sql = "SELECT z2.* FROM (
                         SELECT z1.*, ROWNUM AS zend_db_rownum FROM ($sql) z1
                       ) z2
-                      WHERE z2.zend_db_rownum BETWEEN " . ($offset+1) . " AND " . ($offset+$count);
+                      WHERE z2.zend_db_rownum BETWEEN " . ($offset + 1) . " AND " . ($offset + $count);
         return $limit_sql;
     }
 
@@ -529,7 +533,7 @@ class Oracle extends AbstractAdapter
      */
     private function _setExecuteMode($mode)
     {
-        switch($mode) {
+        switch ($mode) {
             case OCI_COMMIT_ON_SUCCESS:
             case OCI_DEFAULT:
             case OCI_DESCRIBE_ONLY:
@@ -546,7 +550,7 @@ class Oracle extends AbstractAdapter
     /**
      * @return int
      */
-    public function _getExecuteMode():int
+    public function _getExecuteMode(): int
     {
         return $this->_execute_mode;
     }
@@ -557,7 +561,7 @@ class Oracle extends AbstractAdapter
      * @param string $type 'positional' or 'named'
      * @return bool
      */
-    public function supportsParameters(string $type):bool
+    public function supportsParameters(string $type): bool
     {
         switch ($type) {
             case 'named':
@@ -574,7 +578,7 @@ class Oracle extends AbstractAdapter
      * @return string
      * @throws OracleAdapterException
      */
-    public function getServerVersion():string
+    public function getServerVersion(): string
     {
         $this->_connect();
         $version = oci_server_version($this->_connection);

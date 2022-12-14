@@ -1,5 +1,4 @@
 <?php
-
 namespace WiseDb\Adapter;
 
 use WiseDb\DBException;
@@ -8,7 +7,6 @@ use WiseDb\Profiler;
 use WiseDb\Statement;
 use WiseDb\Statement\StatementInterface;
 use WiseDb\Adapter\Exception\Adapter as AdapterException;
-
 use WiseDb\Statement\Exception\Statement as StatementException;
 
 /**
@@ -86,9 +84,9 @@ abstract class AbstractAdapter
      * @var array Associative array of datatypes to values 0, 1, or 2.
      */
     protected $_numericDataTypes = array(
-        WiseDb::INT_TYPE    => WiseDb::INT_TYPE,
+        WiseDb::INT_TYPE => WiseDb::INT_TYPE,
         WiseDb::BIGINT_TYPE => WiseDb::BIGINT_TYPE,
-        WiseDb::FLOAT_TYPE  => WiseDb::FLOAT_TYPE
+        WiseDb::FLOAT_TYPE => WiseDb::FLOAT_TYPE
     );
 
     /** Weither or not that object can get serialized
@@ -128,11 +126,10 @@ abstract class AbstractAdapter
      */
     public function __construct(array $config)
     {
-
         $this->_checkRequiredOptions($config);
 
         $options = array(
-            WiseDb::CASE_FOLDING           => $this->_caseFolding,
+            WiseDb::CASE_FOLDING => $this->_caseFolding,
             WiseDb::AUTO_QUOTE_IDENTIFIERS => $this->_autoQuoteIdentifiers
         );
         $driverOptions = array();
@@ -147,7 +144,7 @@ abstract class AbstractAdapter
             }
         }
         if (array_key_exists('driver_options', $config)) {
-            if (!empty($config['driver_options'])) {
+            if (! empty($config['driver_options'])) {
                 // can't use array_merge() because keys might be integers
                 foreach ((array) $config['driver_options'] as $key => $value) {
                     $driverOptions[$key] = $value;
@@ -155,18 +152,17 @@ abstract class AbstractAdapter
             }
         }
 
-        if (!isset($config['charset'])) {
+        if (! isset($config['charset'])) {
             $config['charset'] = null;
         }
 
-        if (!isset($config['persistent'])) {
+        if (! isset($config['persistent'])) {
             $config['persistent'] = false;
         }
 
         $this->_config = array_merge($this->_config, $config);
         $this->_config['options'] = $options;
         $this->_config['driver_options'] = $driverOptions;
-
 
         // obtain the case setting, if there is one
         if (array_key_exists(WiseDb::CASE_FOLDING, $options)) {
@@ -178,11 +174,7 @@ abstract class AbstractAdapter
                     $this->_caseFolding = $case;
                     break;
                 default:
-                    /**
-                     * @see AdapterException
-                     */
-                    throw new AdapterException('Case must be one of the following constants: '
-                        . 'WiseDb::CASE_NATURAL, WiseDb::CASE_LOWER, WiseDb::CASE_UPPER');
+                    throw new AdapterException('Case must be one of the following constants: ' . 'WiseDb::CASE_NATURAL, WiseDb::CASE_LOWER, WiseDb::CASE_UPPER');
             }
         }
 
@@ -221,21 +213,14 @@ abstract class AbstractAdapter
     {
         // we need at least a dbname
         if (! array_key_exists('dbname', $config)) {
-            /** @see AdapterException */
             throw new AdapterException("Configuration array must have a key for 'dbname' that names the database instance");
         }
 
         if (! array_key_exists('password', $config)) {
-            /**
-             * @see AdapterException
-             */
             throw new AdapterException("Configuration array must have a key for 'password' for login credentials");
         }
 
         if (! array_key_exists('username', $config)) {
-            /**
-             * @see AdapterException
-             */
             throw new AdapterException("Configuration array must have a key for 'username' for login credentials");
         }
     }
@@ -282,18 +267,17 @@ abstract class AbstractAdapter
      */
     public function setProfiler($profiler)
     {
-        $enabled          = null;
+        $enabled = null;
         $profilerInstance = null;
-
-        if ($profilerIsObject = is_object($profiler)) {
+        $profilerIsObject = is_object($profiler);
+        if ($profilerIsObject) {
             if ($profiler instanceof Profiler) {
                 $profilerInstance = $profiler;
             } else {
                 /**
                  * @see DBException
                  */
-                throw new DBException('Profiler argument must be an instance of either Zend_Db_Profiler'
-                    . ' or Zend_Config when provided as an object');
+                throw new DBException('Profiler argument must be an instance of either Zend_Db_Profiler' . ' or Zend_Config when provided as an object');
             }
         }
 
@@ -304,7 +288,7 @@ abstract class AbstractAdapter
             if (isset($profiler['instance'])) {
                 $profilerInstance = $profiler['instance'];
             }
-        } else if (!$profilerIsObject) {
+        } else if (! $profilerIsObject) {
             $enabled = (bool) $profiler;
         }
 
@@ -312,10 +296,9 @@ abstract class AbstractAdapter
             $profilerInstance = new Profiler();
         }
 
-        if (!$profilerInstance instanceof Profiler) {
+        if (! $profilerInstance instanceof Profiler) {
             /** @see DBException */
-            throw new DBException('Class ' . get_class($profilerInstance) . ' does not extend '
-                . 'Zend_Db_Profiler');
+            throw new DBException('Class ' . get_class($profilerInstance) . ' does not extend ' . 'Zend_Db_Profiler');
         }
 
         if (null !== $enabled) {
@@ -327,13 +310,12 @@ abstract class AbstractAdapter
         return $this;
     }
 
-
     /**
      * Returns the profiler for this adapter.
      *
      * @return Profiler
      */
-    public function getProfiler():Profiler
+    public function getProfiler(): Profiler
     {
         return $this->_profiler;
     }
@@ -355,8 +337,10 @@ abstract class AbstractAdapter
         // make sure $bind to an array;
         // don't use (array) typecasting because
         // because $bind may be a Zend_Db_Expr object
-        if (!is_array($bind)) {
-            $bind = array($bind);
+        if (! is_array($bind)) {
+            $bind = array(
+                $bind
+            );
         }
 
         // prepare and execute the statement with profiling
@@ -374,7 +358,7 @@ abstract class AbstractAdapter
      * @return AbstractAdapter
      * @throws Profiler\ProfilerException
      */
-    public function beginTransaction():AbstractAdapter
+    public function beginTransaction(): AbstractAdapter
     {
         $this->_connect();
         $q = $this->_profiler->queryStart('begin', Profiler::TRANSACTION);
@@ -389,7 +373,7 @@ abstract class AbstractAdapter
      * @return AbstractAdapter
      * @throws Profiler\ProfilerException
      */
-    public function commit():AbstractAdapter
+    public function commit(): AbstractAdapter
     {
         $this->_connect();
         $q = $this->_profiler->queryStart('commit', Profiler::TRANSACTION);
@@ -404,7 +388,7 @@ abstract class AbstractAdapter
      * @return AbstractAdapter
      * @throws Profiler\ProfilerException
      */
-    public function rollBack():AbstractAdapter
+    public function rollBack(): AbstractAdapter
     {
         $this->_connect();
         $q = $this->_profiler->queryStart('rollback', Profiler::TRANSACTION);
@@ -418,7 +402,7 @@ abstract class AbstractAdapter
      *
      * @return int
      */
-    public function getFetchMode():int
+    public function getFetchMode(): int
     {
         return $this->_fetchMode;
     }
@@ -433,7 +417,7 @@ abstract class AbstractAdapter
      * @return array
      * @throws StatementException
      */
-    public function fetchAll(string $sql, $bind = array(), $fetchMode = null):array
+    public function fetchAll(string $sql, $bind = array(), $fetchMode = null): array
     {
         if ($fetchMode === null) {
             $fetchMode = $this->_fetchMode;
@@ -452,7 +436,7 @@ abstract class AbstractAdapter
      * @return array
      * @throws StatementException
      */
-    public function fetchRow(string $sql, $bind = array(), $fetchMode = null):array
+    public function fetchRow(string $sql, $bind = array(), $fetchMode = null): array
     {
         if ($fetchMode === null) {
             $fetchMode = $this->_fetchMode;
@@ -475,7 +459,7 @@ abstract class AbstractAdapter
      * @return array
      * @throws StatementException
      */
-    public function fetchAssoc(string $sql, array $bind = []):array
+    public function fetchAssoc(string $sql, array $bind = []): array
     {
         $stmt = $this->query($sql, $bind);
         $data = array();
@@ -496,7 +480,7 @@ abstract class AbstractAdapter
      * @return array
      * @throws StatementException
      */
-    public function fetchCol(string $sql, $bind = array()):array
+    public function fetchCol(string $sql, $bind = array()): array
     {
         $stmt = $this->query($sql, $bind);
         return $stmt->fetchAll(WiseDb::FETCH_COLUMN, 0);
@@ -513,7 +497,7 @@ abstract class AbstractAdapter
      * @return array
      * @throws StatementException
      */
-    public function fetchPairs(string $sql, $bind = array()):array
+    public function fetchPairs(string $sql, $bind = array()): array
     {
         $stmt = $this->query($sql, $bind);
         $data = array();
@@ -531,7 +515,7 @@ abstract class AbstractAdapter
      * @return string
      * @throws StatementException
      */
-    public function fetchOne(string $sql, $bind = array()):string
+    public function fetchOne(string $sql, $bind = array()): string
     {
         $stmt = $this->query($sql, $bind);
         return $stmt->fetchColumn();
@@ -543,7 +527,7 @@ abstract class AbstractAdapter
      * @param string|int|float $value     Raw string
      * @return string           Quoted string
      */
-    protected function _quote($value):string
+    protected function _quote($value): string
     {
         if (is_int($value)) {
             return $value;
@@ -591,8 +575,7 @@ abstract class AbstractAdapter
                             |\d+                 # decimal or octal, or MySQL ZEROFILL decimal
                             (?:[eE][+-]?\d+)?    # optional exponent on decimals or octals
                           )
-                        )/x',
-                        (string) $value, $matches)) {
+                        )/x', (string) $value, $matches)) {
                         $quotedValue = $matches[1];
                     }
                     break;
@@ -624,7 +607,7 @@ abstract class AbstractAdapter
      * @param int|null $count OPTIONAL count of placeholders to replace
      * @return string An SQL-safe quoted value placed into the original text.
      */
-    public function quoteInto(string $text, $value, $type = null, $count = null):string
+    public function quoteInto(string $text, $value, $type = null, $count = null): string
     {
         if ($count === null) {
             return str_replace('?', $this->quote($value, $type), $text);
@@ -633,7 +616,7 @@ abstract class AbstractAdapter
                 if (strpos($text, '?') != false) {
                     $text = substr_replace($text, $this->quote($value, $type), strpos($text, '?'), 1);
                 }
-                --$count;
+                -- $count;
             }
             return $text;
         }
@@ -661,7 +644,7 @@ abstract class AbstractAdapter
      * @param boolean $auto If true, heed the AUTO_QUOTE_IDENTIFIERS config option.
      * @return string The quoted identifier.
      */
-    public function quoteIdentifier($ident, bool $auto=false):string
+    public function quoteIdentifier($ident, bool $auto = false): string
     {
         return $this->_quoteIdentifierAs($ident, null, $auto);
     }
@@ -674,7 +657,7 @@ abstract class AbstractAdapter
      * @param boolean $auto If true, heed the AUTO_QUOTE_IDENTIFIERS config option.
      * @return string The quoted identifier and alias.
      */
-    public function quoteColumnAs($ident, string $alias, bool $auto=false):string
+    public function quoteColumnAs($ident, string $alias, bool $auto = false): string
     {
         return $this->_quoteIdentifierAs($ident, $alias, $auto);
     }
@@ -687,7 +670,7 @@ abstract class AbstractAdapter
      * @param boolean $auto If true, heed the AUTO_QUOTE_IDENTIFIERS config option.
      * @return string The quoted identifier and alias.
      */
-    public function quoteTableAs($ident, string $alias = null, bool $auto = false):string
+    public function quoteTableAs($ident, string $alias = null, bool $auto = false): string
     {
         return $this->_quoteIdentifierAs($ident, $alias, $auto);
     }
@@ -701,7 +684,7 @@ abstract class AbstractAdapter
      * @param string $as The string to add between the identifier/expression and the alias.
      * @return string The quoted identifier and alias.
      */
-    protected function _quoteIdentifierAs($ident, string $alias = null, bool $auto = false, string $as = ' AS '):string
+    protected function _quoteIdentifierAs($ident, string $alias = null, bool $auto = false, string $as = ' AS '): string
     {
         if (is_string($ident)) {
             $ident = explode('.', $ident);
@@ -731,7 +714,7 @@ abstract class AbstractAdapter
      * @param boolean $auto If true, heed the AUTO_QUOTE_IDENTIFIERS config option.
      * @return string        The quoted identifier and alias.
      */
-    protected function _quoteIdentifier($value, $auto=false)
+    protected function _quoteIdentifier($value, $auto = false)
     {
         if ($auto === false || $this->_autoQuoteIdentifiers === true) {
             $q = $this->getQuoteIdentifierSymbol();
@@ -815,10 +798,12 @@ abstract class AbstractAdapter
     {
         if ($this->_allowSerialization == false) {
             /** @see AdapterException */
-            throw new AdapterException(get_class($this) ." is not allowed to be serialized");
+            throw new AdapterException(get_class($this) . " is not allowed to be serialized");
         }
         $this->_connection = false;
-        return array_keys(array_diff_key(get_object_vars($this), array('_connection'=>false)));
+        return array_keys(array_diff_key(get_object_vars($this), array(
+            '_connection' => false
+        )));
     }
 
     /**
@@ -871,7 +856,7 @@ abstract class AbstractAdapter
      * @param string $schemaName OPTIONAL
      * @return array
      */
-    abstract public function describeTable($tableName, $schemaName = null):array;
+    abstract public function describeTable($tableName, $schemaName = null): array;
 
     /**
      * Creates a connection to the database.
@@ -885,7 +870,7 @@ abstract class AbstractAdapter
      *
      * @return boolean
      */
-    abstract public function isConnected():bool;
+    abstract public function isConnected(): bool;
 
     /**
      * Force the connection to close.
@@ -950,7 +935,7 @@ abstract class AbstractAdapter
      * @param integer $offset
      * @return string
      */
-    abstract public function limit($sql, $count, $offset = 0):string;
+    abstract public function limit($sql, $count, $offset = 0): string;
 
     /**
      * Check if the adapter supports real SQL parameters.
@@ -958,12 +943,12 @@ abstract class AbstractAdapter
      * @param string $type 'positional' or 'named'
      * @return bool
      */
-    abstract public function supportsParameters(string $type):bool;
+    abstract public function supportsParameters(string $type): bool;
 
     /**
      * Retrieve server version in PHP style
      *
      * @return string
      */
-    abstract public function getServerVersion():string;
+    abstract public function getServerVersion(): string;
 }

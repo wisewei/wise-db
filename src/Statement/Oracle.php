@@ -1,12 +1,10 @@
 <?php
-
 namespace WiseDb\Statement;
 
 use WiseDb\WiseDb;
 use WiseDb\Statement;
 use WiseDb\Statement\Exception\Statement as StatementException;
 use WiseDb\Statement\Exception\Oracle as OracleStatementException;
-
 use WiseDb\Adapter\Exception\Adapter as AdapterException;
 use WiseDb\Adapter\Exception\Oracle as OracleAdapterException;
 
@@ -37,7 +35,7 @@ class Oracle extends Statement
      * @param string $lob_as_string
      * @return $this
      */
-    public function setLobAsString(string $lob_as_string):Statement
+    public function setLobAsString(string $lob_as_string): Statement
     {
         $this->_lobAsString = (bool) $lob_as_string;
         return $this;
@@ -48,7 +46,7 @@ class Oracle extends Statement
      *
      * @return bool
      */
-    public function getLobAsString():bool
+    public function getLobAsString(): bool
     {
         return $this->_lobAsString;
     }
@@ -64,10 +62,7 @@ class Oracle extends Statement
     {
         $connection = $this->_adapter->getConnection();
         $this->_stmt = oci_parse($connection, $sql);
-        if (!$this->_stmt) {
-            /**
-             * @see OracleStatementException
-             */
+        if (! $this->_stmt) {
             throw new OracleStatementException(oci_error($connection));
         }
     }
@@ -82,7 +77,7 @@ class Oracle extends Statement
      * @return bool
      * @throws AdapterException
      */
-    protected function _bindParam($parameter, &$variable, $type = null, $length = null):bool
+    protected function _bindParam($parameter, &$variable, $type = null, $length = null): bool
     {
         // default value
         if ($type === NULL) {
@@ -91,7 +86,7 @@ class Oracle extends Statement
 
         // default value
         if ($length === NULL) {
-            $length = -1;
+            $length = - 1;
         }
 
         $retval = @oci_bind_by_name($this->_stmt, $parameter, $variable, $length, $type);
@@ -110,9 +105,9 @@ class Oracle extends Statement
      *
      * @return bool
      */
-    public function closeCursor():bool
+    public function closeCursor(): bool
     {
-        if (!$this->_stmt) {
+        if (! $this->_stmt) {
             return false;
         }
 
@@ -127,15 +122,14 @@ class Oracle extends Statement
      *
      * @return int The number of columns.
      */
-    public function columnCount():int
+    public function columnCount(): int
     {
-        if (!$this->_stmt) {
+        if (! $this->_stmt) {
             return false;
         }
 
         return oci_num_fields($this->_stmt);
     }
-
 
     /**
      * Retrieves the error code, if any, associated with the last operation on
@@ -143,21 +137,20 @@ class Oracle extends Statement
      *
      * @return string error code.
      */
-    public function errorCode():string
+    public function errorCode(): string
     {
-        if (!$this->_stmt) {
+        if (! $this->_stmt) {
             return '';
         }
 
         $error = oci_error($this->_stmt);
 
-        if (!$error) {
+        if (! $error) {
             return '';
         }
 
         return $error['code'];
     }
-
 
     /**
      * Retrieves an array of error information, if any, associated with the
@@ -165,14 +158,14 @@ class Oracle extends Statement
      *
      * @return array
      */
-    public function errorInfo():array
+    public function errorInfo(): array
     {
-        if (!$this->_stmt) {
+        if (! $this->_stmt) {
             return [];
         }
 
         $error = oci_error($this->_stmt);
-        if (!$error) {
+        if (! $error) {
             return [];
         }
 
@@ -181,16 +174,15 @@ class Oracle extends Statement
                 $error['code'],
                 $error['message'],
                 $error['offset'],
-                $error['sqltext'],
+                $error['sqltext']
             );
         } else {
             return array(
                 $error['code'],
-                $error['message'],
+                $error['message']
             );
         }
     }
-
 
     /**
      * Executes a prepared statement.
@@ -203,46 +195,43 @@ class Oracle extends Statement
     {
         $this->_adapter->getConnection();
 
-        if (!$this->_stmt) {
+        if (! $this->_stmt) {
             return false;
         }
 
         if ($params !== null) {
-            if (!is_array($params)) {
-                $params = array($params);
+            if (! is_array($params)) {
+                $params = array(
+                    $params
+                );
             }
             $error = false;
             foreach (array_keys($params) as $name) {
-                if (!@oci_bind_by_name($this->_stmt, $name, $params[$name], -1)) {
+                if (! @oci_bind_by_name($this->_stmt, $name, $params[$name], - 1)) {
                     $error = true;
                     break;
                 }
             }
             if ($error) {
-                /**
-                 * @see OracleStatementException
-                 */
                 throw new OracleStatementException(oci_error($this->_stmt));
             }
         }
 
         $retval = @oci_execute($this->_stmt, $this->_adapter->_getExecuteMode());
         if ($retval === false) {
-            /**
-             * @see OracleStatementException
-             */
             throw new OracleStatementException(oci_error($this->_stmt));
         }
 
-        $this->_keys = Array();
-        if ($field_num = oci_num_fields($this->_stmt)) {
-            for ($i = 1; $i <= $field_num; $i++) {
+        $this->_keys = [];
+        $field_num = oci_num_fields($this->_stmt);
+        if ($field_num) {
+            for ($i = 1; $i <= $field_num; $i ++) {
                 $name = oci_field_name($this->_stmt, $i);
                 $this->_keys[] = $name;
             }
         }
 
-        $this->_values = Array();
+        $this->_values = [];
         if ($this->_keys) {
             $this->_values = array_fill(0, count($this->_keys), null);
         }
@@ -259,9 +248,9 @@ class Oracle extends Statement
      * @return mixed Array, object, or scalar depending on fetch mode.
      * @throws StatementException|OracleAdapterException
      */
-    public function fetch(int $style = null, int $cursor = null, int $offset = null):array
+    public function fetch(int $style = null, int $cursor = null, int $offset = null): array
     {
-        if (!$this->_stmt) {
+        if (! $this->_stmt) {
             return [];
         }
 
@@ -294,12 +283,10 @@ class Oracle extends Statement
                 /**
                  * @see OracleStatementException
                  */
-                throw new OracleStatementException(
-                    array(
-                        'code'    => 'HYC00',
-                        'message' => "Invalid fetch mode '$style' specified"
-                    )
-                );
+                throw new OracleStatementException(array(
+                    'code' => 'HYC00',
+                    'message' => "Invalid fetch mode '$style' specified"
+                ));
         }
 
         if (! $row && $error = oci_error($this->_stmt)) {
@@ -325,9 +312,9 @@ class Oracle extends Statement
      * @throws StatementException
      * @throws AdapterException
      */
-    public function fetchAll(int $style = null, $col = 0):array
+    public function fetchAll(int $style = null, $col = 0): array
     {
-        if (!$this->_stmt) {
+        if (! $this->_stmt) {
             return false;
         }
 
@@ -343,16 +330,14 @@ class Oracle extends Statement
                 /**
                  * @see OracleAdapterException
                  */
-                throw new OracleAdapterException(
-                    array(
-                        'code'    => 'HYC00',
-                        'message' => "OCI8 driver does not support fetchAll(FETCH_BOTH), use fetch() in a loop instead"
-                    )
-                );
-                // notreached
-                //$flags |= OCI_NUM;
-                //$flags |= OCI_ASSOC;
-                //break;
+                throw new OracleAdapterException(array(
+                    'code' => 'HYC00',
+                    'message' => "OCI8 driver does not support fetchAll(FETCH_BOTH), use fetch() in a loop instead"
+                ));
+            // notreached
+            //$flags |= OCI_NUM;
+            //$flags |= OCI_ASSOC;
+            //break;
             case WiseDb::FETCH_NUM:
                 $flags |= OCI_NUM;
                 break;
@@ -362,24 +347,23 @@ class Oracle extends Statement
             case WiseDb::FETCH_OBJ:
                 break;
             case WiseDb::FETCH_COLUMN:
-                $flags = $flags &~ OCI_FETCHSTATEMENT_BY_ROW;
+                $flags = $flags & ~ OCI_FETCHSTATEMENT_BY_ROW;
                 $flags |= OCI_FETCHSTATEMENT_BY_COLUMN;
                 $flags |= OCI_NUM;
                 break;
             default:
-                throw new OracleAdapterException(
-                    array(
-                        'code'    => 'HYC00',
-                        'message' => "Invalid fetch mode '$style' specified"
-                    )
-                );
+                throw new OracleAdapterException(array(
+                    'code' => 'HYC00',
+                    'message' => "Invalid fetch mode '$style' specified"
+                ));
         }
 
         $result = Array();
         if ($flags != OCI_FETCHSTATEMENT_BY_ROW) { /* not Zend_Db::FETCH_OBJ */
-            $rows = oci_fetch_all($this->_stmt, $result, 0, -1, $flags);
-            if (!$rows) {
-                if ($error = oci_error($this->_stmt)) {
+            $rows = oci_fetch_all($this->_stmt, $result, 0, - 1, $flags);
+            if (! $rows) {
+                $error = oci_error($this->_stmt);
+                if ($error) {
                     throw new OracleAdapterException($error);
                 }
                 return array();
@@ -394,19 +378,15 @@ class Oracle extends Statement
             }
         } else {
             while (($row = oci_fetch_object($this->_stmt)) !== false) {
-                $result [] = $row;
+                $result[] = $row;
             }
-            if ($error = oci_error($this->_stmt)) {
-                /**
-                 * @see OracleStatementException
-                 */
+            $error = oci_error($this->_stmt);
+            if ($error) {
                 throw new OracleStatementException($error);
             }
         }
-
         return $result;
     }
-
 
     /**
      * Returns a single column from the next row of a result set.
@@ -415,15 +395,15 @@ class Oracle extends Statement
      * @return string
      * @throws StatementException
      */
-    public function fetchColumn(int $col = 0):string
+    public function fetchColumn(int $col = 0): string
     {
-        if (!$this->_stmt) {
+        if (! $this->_stmt) {
             return false;
         }
 
-        if (!oci_fetch($this->_stmt)) {
+        if (! oci_fetch($this->_stmt)) {
             // if no error, there is simply no record
-            if (!$error = oci_error($this->_stmt)) {
+            if (! $error = oci_error($this->_stmt)) {
                 return false;
             }
             /**
@@ -432,7 +412,7 @@ class Oracle extends Statement
             throw new OracleStatementException($error);
         }
 
-        $data = oci_result($this->_stmt, $col+1); //1-based
+        $data = oci_result($this->_stmt, $col + 1); //1-based
         if ($data === false) {
             /**
              * @see OracleStatementException
@@ -461,21 +441,15 @@ class Oracle extends Statement
      */
     public function fetchObject(string $class = 'stdClass', array $config = array())
     {
-        if (!$this->_stmt) {
+        if (! $this->_stmt) {
             return false;
         }
 
         $obj = oci_fetch_object($this->_stmt);
-
-        if ($error = oci_error($this->_stmt)) {
-            /**
-             * @see OracleStatementException
-             */
+        $error = oci_error($this->_stmt);
+        if ($error) {
             throw new OracleStatementException($error);
         }
-
-        /* @todo XXX handle parameters */
-
         return $obj;
     }
 
@@ -487,17 +461,15 @@ class Oracle extends Statement
      * @return bool
      * @throws StatementException
      */
-    public function nextRowset():bool
+    public function nextRowset(): bool
     {
         /**
          * @see OracleStatementException
          */
-        throw new OracleStatementException(
-            array(
-                'code'    => 'HYC00',
-                'message' => 'Optional feature not implemented'
-            )
-        );
+        throw new OracleStatementException(array(
+            'code' => 'HYC00',
+            'message' => 'Optional feature not implemented'
+        ));
     }
 
     /**
@@ -508,22 +480,15 @@ class Oracle extends Statement
      * @return int     The number of rows affected.
      * @throws StatementException
      */
-    public function rowCount():int
+    public function rowCount(): int
     {
-        if (!$this->_stmt) {
+        if (! $this->_stmt) {
             return 0;
         }
-
         $num_rows = oci_num_rows($this->_stmt);
-
         if ($num_rows === false) {
-            /**
-             * @see OracleStatementException
-             */
             throw new OracleStatementException(oci_error($this->_stmt));
         }
-
         return $num_rows;
     }
-
 }

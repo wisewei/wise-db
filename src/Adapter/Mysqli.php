@@ -1,19 +1,9 @@
 <?php
+namespace WiseDb\Statement\Mysqli;
 
-namespace WiseDb\Statement\Mysqli as MysqliStatement;
-
-require_once 'Zend/Db/Profiler.php';
-
-/**
- * @see Zend_Db_Select
- */
-require_once 'Zend/Db/Select.php';
-
-/**
- * @see Zend_Db_Statement_Mysqli
- */
-require_once 'Zend/Db/Statement/Mysqli.php';
-
+use WiseDb\Adapter\AbstractAdapter;
+use WiseDb\Adapter\Exception\Mysqli as MysqliException;
+use WiseDb\WiseDb;
 
 /**
  * @category   Zend
@@ -22,7 +12,7 @@ require_once 'Zend/Db/Statement/Mysqli.php';
  * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
-class Zend_Db_Adapter_Mysqli extends Zend_Db_Adapter_Abstract
+class Mysqli extends AbstractAdapter
 {
 
     /**
@@ -37,22 +27,22 @@ class Zend_Db_Adapter_Mysqli extends Zend_Db_Adapter_Abstract
      * @var array Associative array of datatypes to values 0, 1, or 2.
      */
     protected $_numericDataTypes = array(
-        Zend_Db::INT_TYPE    => Zend_Db::INT_TYPE,
-        Zend_Db::BIGINT_TYPE => Zend_Db::BIGINT_TYPE,
-        Zend_Db::FLOAT_TYPE  => Zend_Db::FLOAT_TYPE,
-        'INT'                => Zend_Db::INT_TYPE,
-        'INTEGER'            => Zend_Db::INT_TYPE,
-        'MEDIUMINT'          => Zend_Db::INT_TYPE,
-        'SMALLINT'           => Zend_Db::INT_TYPE,
-        'TINYINT'            => Zend_Db::INT_TYPE,
-        'BIGINT'             => Zend_Db::BIGINT_TYPE,
-        'SERIAL'             => Zend_Db::BIGINT_TYPE,
-        'DEC'                => Zend_Db::FLOAT_TYPE,
-        'DECIMAL'            => Zend_Db::FLOAT_TYPE,
-        'DOUBLE'             => Zend_Db::FLOAT_TYPE,
-        'DOUBLE PRECISION'   => Zend_Db::FLOAT_TYPE,
-        'FIXED'              => Zend_Db::FLOAT_TYPE,
-        'FLOAT'              => Zend_Db::FLOAT_TYPE
+        WiseDb::INT_TYPE => WiseDb::INT_TYPE,
+        WiseDb::BIGINT_TYPE => WiseDb::BIGINT_TYPE,
+        WiseDb::FLOAT_TYPE => WiseDb::FLOAT_TYPE,
+        'INT' => WiseDb::INT_TYPE,
+        'INTEGER' => WiseDb::INT_TYPE,
+        'MEDIUMINT' => WiseDb::INT_TYPE,
+        'SMALLINT' => WiseDb::INT_TYPE,
+        'TINYINT' => WiseDb::INT_TYPE,
+        'BIGINT' => WiseDb::BIGINT_TYPE,
+        'SERIAL' => WiseDb::BIGINT_TYPE,
+        'DEC' => WiseDb::FLOAT_TYPE,
+        'DECIMAL' => WiseDb::FLOAT_TYPE,
+        'DOUBLE' => WiseDb::FLOAT_TYPE,
+        'DOUBLE PRECISION' => WiseDb::FLOAT_TYPE,
+        'FIXED' => WiseDb::FLOAT_TYPE,
+        'FLOAT' => WiseDb::FLOAT_TYPE
     );
 
     /**
@@ -65,7 +55,7 @@ class Zend_Db_Adapter_Mysqli extends Zend_Db_Adapter_Abstract
      *
      * @param mixed $value Raw string
      *
-     * @return string           Quoted string
+     * @return string Quoted string
      */
     protected function _quote($value)
     {
@@ -97,17 +87,14 @@ class Zend_Db_Adapter_Mysqli extends Zend_Db_Adapter_Abstract
         // Use mysqli extension API, because SHOW doesn't work
         // well as a prepared statement on MySQL 4.1.
         $sql = 'SHOW TABLES';
-        if ($queryResult = $this->getConnection()->query($sql)) {
+        $queryResult = $this->getConnection()->query($sql);
+        if ($queryResult) {
             while ($row = $queryResult->fetch_row()) {
                 $result[] = $row[0];
             }
             $queryResult->close();
         } else {
-            /**
-             * @see Zend_Db_Adapter_Mysqli_Exception
-             */
-            require_once 'Zend/Db/Adapter/Mysqli/Exception.php';
-            throw new Zend_Db_Adapter_Mysqli_Exception($this->getConnection()->error);
+            throw new MysqliException($this->getConnection()->error);
         }
         return $result;
     }
@@ -143,10 +130,9 @@ class Zend_Db_Adapter_Mysqli extends Zend_Db_Adapter_Abstract
     public function describeTable($tableName, $schemaName = null)
     {
         /**
-         * @todo  use INFORMATION_SCHEMA someday when
+         * use INFORMATION_SCHEMA someday when
          * MySQL's implementation isn't too slow.
          */
-
         if ($schemaName) {
             $sql = 'DESCRIBE ' . $this->quoteIdentifier("$schemaName.$tableName", true);
         } else {
@@ -157,17 +143,14 @@ class Zend_Db_Adapter_Mysqli extends Zend_Db_Adapter_Abstract
          * Use mysqli extension API, because DESCRIBE doesn't work
          * well as a prepared statement on MySQL 4.1.
          */
-        if ($queryResult = $this->getConnection()->query($sql)) {
+        $queryResult = $this->getConnection()->query($sql);
+        if ($queryResult) {
             while ($row = $queryResult->fetch_assoc()) {
                 $result[] = $row;
             }
             $queryResult->close();
         } else {
-            /**
-             * @see Zend_Db_Adapter_Mysqli_Exception
-             */
-            require_once 'Zend/Db/Adapter/Mysqli/Exception.php';
-            throw new Zend_Db_Adapter_Mysqli_Exception($this->getConnection()->error);
+            throw new MysqliException($this->getConnection()->error);
         }
 
         $desc = array();
@@ -214,10 +197,10 @@ class Zend_Db_Adapter_Mysqli extends Zend_Db_Adapter_Abstract
                 } else {
                     $row['Identity'] = false;
                 }
-                ++$p;
+                ++ $p;
             }
             $desc[$this->foldCase($row['Field'])] = array(
-                'SCHEMA_NAME'      => null, // @todo
+                'SCHEMA_NAME'      => null,
                 'TABLE_NAME'       => $this->foldCase($tableName),
                 'COLUMN_NAME'      => $this->foldCase($row['Field']),
                 'COLUMN_POSITION'  => $i,
@@ -232,7 +215,7 @@ class Zend_Db_Adapter_Mysqli extends Zend_Db_Adapter_Abstract
                 'PRIMARY_POSITION' => $row['PrimaryPosition'],
                 'IDENTITY'         => $row['Identity']
             );
-            ++$i;
+            ++ $i;
         }
         return $desc;
     }
@@ -249,12 +232,8 @@ class Zend_Db_Adapter_Mysqli extends Zend_Db_Adapter_Abstract
             return;
         }
 
-        if (!extension_loaded('mysqli')) {
-            /**
-             * @see Zend_Db_Adapter_Mysqli_Exception
-             */
-            require_once 'Zend/Db/Adapter/Mysqli/Exception.php';
-            throw new Zend_Db_Adapter_Mysqli_Exception('The Mysqli extension is required for this adapter but the extension is not loaded');
+        if (! extension_loaded('mysqli')) {
+            throw new MysqliException('The Mysqli extension is required for this adapter but the extension is not loaded');
         }
 
         if (isset($this->_config['port'])) {
@@ -265,13 +244,13 @@ class Zend_Db_Adapter_Mysqli extends Zend_Db_Adapter_Abstract
 
         $this->_connection = mysqli_init();
 
-        if(!empty($this->_config['driver_options'])) {
-            foreach($this->_config['driver_options'] as $option=>$value) {
-                if(is_string($option)) {
+        if (! empty($this->_config['driver_options'])) {
+            foreach ($this->_config['driver_options'] as $option => $value) {
+                if (is_string($option)) {
                     // Suppress warnings here
                     // Ignore it if it's not a valid constant
                     $option = @constant(strtoupper($option));
-                    if($option === null)
+                    if ($option === null)
                         continue;
                 }
                 mysqli_options($this->_connection, $option, $value);
@@ -292,14 +271,10 @@ class Zend_Db_Adapter_Mysqli extends Zend_Db_Adapter_Abstract
         if ($_isConnected === false || mysqli_connect_errno()) {
 
             $this->closeConnection();
-            /**
-             * @see Zend_Db_Adapter_Mysqli_Exception
-             */
-            require_once 'Zend/Db/Adapter/Mysqli/Exception.php';
-            throw new Zend_Db_Adapter_Mysqli_Exception(mysqli_connect_error());
+            throw new MysqliException(mysqli_connect_error());
         }
 
-        if (!empty($this->_config['charset'])) {
+        if (! empty($this->_config['charset'])) {
             mysqli_set_charset($this->_connection, $this->_config['charset']);
         }
     }
@@ -339,7 +314,7 @@ class Zend_Db_Adapter_Mysqli extends Zend_Db_Adapter_Abstract
         if ($this->_stmt) {
             $this->_stmt->close();
         }
-        $stmt = new MysqliStatement($this, $sql);
+        $stmt = new Mysqli($this, $sql);
         if ($stmt === false) {
             return false;
         }
@@ -363,7 +338,7 @@ class Zend_Db_Adapter_Mysqli extends Zend_Db_Adapter_Abstract
      * @param string $tableName   OPTIONAL Name of table.
      * @param string $primaryKey  OPTIONAL Name of primary key column.
      * @return string
-     * @todo Return value should be int?
+     * Return value should be int
      */
     public function lastInsertId($tableName = null, $primaryKey = null)
     {
@@ -416,27 +391,19 @@ class Zend_Db_Adapter_Mysqli extends Zend_Db_Adapter_Abstract
     public function setFetchMode($mode)
     {
         switch ($mode) {
-            case Zend_Db::FETCH_LAZY:
-            case Zend_Db::FETCH_ASSOC:
-            case Zend_Db::FETCH_NUM:
-            case Zend_Db::FETCH_BOTH:
-            case Zend_Db::FETCH_NAMED:
-            case Zend_Db::FETCH_OBJ:
+            case WiseDb::FETCH_LAZY:
+            case WiseDb::FETCH_ASSOC:
+            case WiseDb::FETCH_NUM:
+            case WiseDb::FETCH_BOTH:
+            case WiseDb::FETCH_NAMED:
+            case WiseDb::FETCH_OBJ:
                 $this->_fetchMode = $mode;
                 break;
-            case Zend_Db::FETCH_BOUND: // bound to PHP variable
-                /**
-                 * @see Zend_Db_Adapter_Mysqli_Exception
-                 */
-                require_once 'Zend/Db/Adapter/Mysqli/Exception.php';
-                throw new Zend_Db_Adapter_Mysqli_Exception('FETCH_BOUND is not supported yet');
+            case WiseDb::FETCH_BOUND: // bound to PHP variable
+                throw new MysqliException('FETCH_BOUND is not supported yet');
                 break;
             default:
-                /**
-                 * @see Zend_Db_Adapter_Mysqli_Exception
-                 */
-                require_once 'Zend/Db/Adapter/Mysqli/Exception.php';
-                throw new Zend_Db_Adapter_Mysqli_Exception("Invalid fetch mode '$mode' specified");
+                throw new MysqliException("Invalid fetch mode '$mode' specified");
         }
     }
 
@@ -452,20 +419,12 @@ class Zend_Db_Adapter_Mysqli extends Zend_Db_Adapter_Abstract
     {
         $count = intval($count);
         if ($count <= 0) {
-            /**
-             * @see Zend_Db_Adapter_Mysqli_Exception
-             */
-            require_once 'Zend/Db/Adapter/Mysqli/Exception.php';
-            throw new Zend_Db_Adapter_Mysqli_Exception("LIMIT argument count=$count is not valid");
+            throw new MysqliException("LIMIT argument count=$count is not valid");
         }
 
         $offset = intval($offset);
         if ($offset < 0) {
-            /**
-             * @see Zend_Db_Adapter_Mysqli_Exception
-             */
-            require_once 'Zend/Db/Adapter/Mysqli/Exception.php';
-            throw new Zend_Db_Adapter_Mysqli_Exception("LIMIT argument offset=$offset is not valid");
+            throw new MysqliException("LIMIT argument offset=$offset is not valid");
         }
 
         $sql .= " LIMIT $count";
