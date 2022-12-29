@@ -1,17 +1,17 @@
 <?php
-namespace WiseDb;
+namespace ZendDb;
 
-use WiseDb\Adapter\AbstractAdapter;
-use WiseDb\Adapter\Exception\Adapter as AdapterException;
-use WiseDb\Statement\StatementInterface;
-use WiseDb\Profiler\Query as ProfilerQuery;
-use WiseDb\Statement\Exception\Statement as StatementException;
+use ZendDb\Adapter\AbstractAdapter;
+use ZendDb\Adapter\Exception\Adapter as AdapterException;
+use ZendDb\Statement\StatementInterface;
+use ZendDb\Profiler\Query as ProfilerQuery;
+use ZendDb\Statement\Exception\Statement as StatementException;
 
 /**
  * Abstract class to emulate a PDOStatement for native database adapters.
  *
  * @category   Zend
- * @package    WiseDb
+ * @package    ZendDb
  * @subpackage Statement
  * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
@@ -34,7 +34,7 @@ abstract class Statement implements StatementInterface
      *
      * @var integer
      */
-    protected $_fetchMode = WiseDb::FETCH_ASSOC;
+    protected $_fetchMode = ZendDb::FETCH_ASSOC;
 
     /**
      * Attributes.
@@ -302,12 +302,17 @@ abstract class Statement implements StatementInterface
     public function fetchAll(int $style = null, int $col = null): array
     {
         $data = array();
-        if ($style === WiseDb::FETCH_COLUMN && $col === null) {
+        if ($style === ZendDb::FETCH_COLUMN && $col === null) {
             $col = 0;
         }
         if ($col === null) {
-            while ($row = $this->fetch($style)) {
-                $data[] = $row;
+            while (true) {
+                $row = $this->fetch($style);
+                if($row){
+                    $data[] = $row;
+                }else{
+                    break;
+                }
             }
         } else {
             while (false !== ($val = $this->fetchColumn($col))) {
@@ -324,13 +329,12 @@ abstract class Statement implements StatementInterface
      * @return string|bool One value from the next row of result set, or false.
      * @throws StatementException
      */
-    public function fetchColumn(int $col = 0): string
-    {
-        $row = $this->fetch(WiseDb::FETCH_NUM);
+    public function fetchColumn(int $col = 0): string{
+        $row = $this->fetch(ZendDb::FETCH_NUM);
         if (! is_array($row)) {
             return '';
         }
-        return $row[$col];
+        return $row[$col] ?? '';
     }
 
     /**
@@ -344,7 +348,7 @@ abstract class Statement implements StatementInterface
     public function fetchObject(string $class = 'stdClass', array $config = array())
     {
         $obj = new $class($config);
-        $row = $this->fetch(WiseDb::FETCH_ASSOC);
+        $row = $this->fetch(ZendDb::FETCH_ASSOC);
         if (! is_array($row)) {
             return false;
         }
@@ -390,13 +394,13 @@ abstract class Statement implements StatementInterface
     public function setFetchMode(int $mode): bool
     {
         switch ($mode) {
-            case WiseDb::FETCH_NUM:
-            case WiseDb::FETCH_ASSOC:
-            case WiseDb::FETCH_BOTH:
-            case WiseDb::FETCH_OBJ:
+            case ZendDb::FETCH_NUM:
+            case ZendDb::FETCH_ASSOC:
+            case ZendDb::FETCH_BOTH:
+            case ZendDb::FETCH_OBJ:
                 $this->_fetchMode = $mode;
                 break;
-            case WiseDb::FETCH_BOUND:
+            case ZendDb::FETCH_BOUND:
             default:
                 $this->closeCursor();
                 /**

@@ -1,7 +1,7 @@
 <?php
-namespace WiseDb\Statement\Exception;
+namespace ZendDb\Statement\Exception;
 
-use WiseDb\DBException;
+use ZendDb\DBException;
 
 class Statement extends DBException
 {
@@ -21,7 +21,7 @@ class Statement extends DBException
         $this->message = $message;
         $this->code = $code;
         $this->_chainedException = $chainedException;
-        parent::__construct($message, $this);
+        parent::__construct($message, $code, $this);
     }
 
     /**

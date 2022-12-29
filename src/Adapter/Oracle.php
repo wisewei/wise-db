@@ -1,10 +1,10 @@
 <?php
-namespace WiseDb\Adapter;
+namespace ZendDb\Adapter;
 
-use WiseDb\WiseDb;
-use WiseDb\Statement\Oracle as OracleStatement;
-use WiseDb\Adapter\Exception\Oracle as OracleAdapterException;
-use WiseDb\Statement\Exception\Statement as StatementException;
+use ZendDb\ZendDb;
+use ZendDb\Statement\Oracle as OracleStatement;
+use ZendDb\Adapter\Exception\Oracle as OracleAdapterException;
+use ZendDb\Statement\Exception\Statement as StatementException;
 
 /**
  * @category   Zend
@@ -47,12 +47,12 @@ class Oracle extends AbstractAdapter
      * @var array Associative array of datatypes to values 0, 1, or 2.
      */
     protected $_numericDataTypes = array(
-        WiseDb::INT_TYPE    => WiseDb::INT_TYPE,
-        WiseDb::BIGINT_TYPE => WiseDb::BIGINT_TYPE,
-        WiseDb::FLOAT_TYPE  => WiseDb::FLOAT_TYPE,
-        'BINARY_DOUBLE'     => WiseDb::FLOAT_TYPE,
-        'BINARY_FLOAT'      => WiseDb::FLOAT_TYPE,
-        'NUMBER'            => WiseDb::FLOAT_TYPE,
+        ZendDb::INT_TYPE    => ZendDb::INT_TYPE,
+        ZendDb::BIGINT_TYPE => ZendDb::BIGINT_TYPE,
+        ZendDb::FLOAT_TYPE  => ZendDb::FLOAT_TYPE,
+        'BINARY_DOUBLE'     => ZendDb::FLOAT_TYPE,
+        'BINARY_FLOAT'      => ZendDb::FLOAT_TYPE,
+        'NUMBER'            => ZendDb::FLOAT_TYPE,
     );
 
     /**
@@ -362,7 +362,7 @@ class Oracle extends AbstractAdapter
         /**
          * Use FETCH_NUM so we are not dependent on the CASE attribute of the PDO connection
          */
-        $result = $stmt->fetchAll(WiseDb::FETCH_NUM);
+        $result = $stmt->fetchAll(ZendDb::FETCH_NUM);
 
         $table_name = 0;
         $owner = 1;
@@ -468,13 +468,13 @@ class Oracle extends AbstractAdapter
     public function setFetchMode($mode)
     {
         switch ($mode) {
-            case WiseDb::FETCH_NUM:   // seq array
-            case WiseDb::FETCH_ASSOC: // assoc array
-            case WiseDb::FETCH_BOTH:  // seq+assoc array
-            case WiseDb::FETCH_OBJ:   // object
+            case ZendDb::FETCH_NUM:   // seq array
+            case ZendDb::FETCH_ASSOC: // assoc array
+            case ZendDb::FETCH_BOTH:  // seq+assoc array
+            case ZendDb::FETCH_OBJ:   // object
                 $this->_fetchMode = $mode;
                 break;
-            case WiseDb::FETCH_BOUND: // bound to PHP variable
+            case ZendDb::FETCH_BOUND: // bound to PHP variable
                 /**
                  * @see OracleAdapterException
                  */

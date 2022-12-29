@@ -1,7 +1,7 @@
 <?php
-namespace WiseDb\Adapter\Exception;
+namespace ZendDb\Adapter\Exception;
 
-use WiseDb\Adapter\Exception\Adapter as AdapterException;
+use ZendDb\Adapter\Exception\Adapter as AdapterException;
 
 /**
  * Zend_Db_Adapter_Mysqli_Exception

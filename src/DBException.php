@@ -1,5 +1,5 @@
 <?php
-namespace WiseDb;
+namespace ZendDb;
 
 class DBException extends \Exception
 {

@@ -1,12 +1,12 @@
 <?php
-namespace WiseDb\Statement;
+namespace ZendDb\Statement;
 
-use WiseDb\WiseDb;
-use WiseDb\Statement;
-use WiseDb\Statement\Exception\Statement as StatementException;
-use WiseDb\Statement\Exception\Oracle as OracleStatementException;
-use WiseDb\Adapter\Exception\Adapter as AdapterException;
-use WiseDb\Adapter\Exception\Oracle as OracleAdapterException;
+use ZendDb\ZendDb;
+use ZendDb\Statement;
+use ZendDb\Statement\Exception\Statement as StatementException;
+use ZendDb\Statement\Exception\Oracle as OracleStatementException;
+use ZendDb\Adapter\Exception\Adapter as AdapterException;
+use ZendDb\Adapter\Exception\Oracle as OracleAdapterException;
 
 class Oracle extends Statement
 {
@@ -259,21 +259,21 @@ class Oracle extends Statement
         }
 
         $lob_as_string = $this->getLobAsString() ? OCI_RETURN_LOBS : 0;
-
+        $row = [];
         switch ($style) {
-            case WiseDb::FETCH_NUM:
+            case ZendDb::FETCH_NUM:
                 $row = oci_fetch_array($this->_stmt, OCI_NUM | OCI_RETURN_NULLS | $lob_as_string);
                 break;
-            case WiseDb::FETCH_ASSOC:
+            case ZendDb::FETCH_ASSOC:
                 $row = oci_fetch_array($this->_stmt, OCI_ASSOC | OCI_RETURN_NULLS | $lob_as_string);
                 break;
-            case WiseDb::FETCH_BOTH:
+            case ZendDb::FETCH_BOTH:
                 $row = oci_fetch_array($this->_stmt, OCI_BOTH | OCI_RETURN_NULLS | $lob_as_string);
                 break;
-            case WiseDb::FETCH_OBJ:
+            case ZendDb::FETCH_OBJ:
                 $row = oci_fetch_object($this->_stmt);
                 break;
-            case WiseDb::FETCH_BOUND:
+            case ZendDb::FETCH_BOUND:
                 $row = oci_fetch_array($this->_stmt, OCI_BOTH | OCI_RETURN_NULLS | $lob_as_string);
                 if ($row !== false) {
                     return $this->_fetchBound($row);
@@ -287,6 +287,9 @@ class Oracle extends Statement
                     'code' => 'HYC00',
                     'message' => "Invalid fetch mode '$style' specified"
                 ));
+        }
+        if($row === null || $row === false){
+            $row = [];
         }
 
         if (! $row && $error = oci_error($this->_stmt)) {
@@ -326,7 +329,7 @@ class Oracle extends Statement
         $flags = OCI_FETCHSTATEMENT_BY_ROW;
 
         switch ($style) {
-            case WiseDb::FETCH_BOTH:
+            case ZendDb::FETCH_BOTH:
                 /**
                  * @see OracleAdapterException
                  */
@@ -338,15 +341,15 @@ class Oracle extends Statement
             //$flags |= OCI_NUM;
             //$flags |= OCI_ASSOC;
             //break;
-            case WiseDb::FETCH_NUM:
+            case ZendDb::FETCH_NUM:
                 $flags |= OCI_NUM;
                 break;
-            case WiseDb::FETCH_ASSOC:
+            case ZendDb::FETCH_ASSOC:
                 $flags |= OCI_ASSOC;
                 break;
-            case WiseDb::FETCH_OBJ:
+            case ZendDb::FETCH_OBJ:
                 break;
-            case WiseDb::FETCH_COLUMN:
+            case ZendDb::FETCH_COLUMN:
                 $flags = $flags & ~ OCI_FETCHSTATEMENT_BY_ROW;
                 $flags |= OCI_FETCHSTATEMENT_BY_COLUMN;
                 $flags |= OCI_NUM;
@@ -368,7 +371,7 @@ class Oracle extends Statement
                 }
                 return array();
             }
-            if ($style == WiseDb::FETCH_COLUMN) {
+            if ($style == ZendDb::FETCH_COLUMN) {
                 $result = $result[$col];
             }
             foreach ($result as &$row) {

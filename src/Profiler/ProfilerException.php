@@ -1,7 +1,7 @@
 <?php
-namespace WiseDb\Profiler;
+namespace ZendDb\Profiler;
 
-use WiseDb\DBException;
+use ZendDb\DBException;
 
 class ProfilerException extends DBException
 {

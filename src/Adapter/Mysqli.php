@@ -1,9 +1,10 @@
 <?php
-namespace WiseDb\Statement\Mysqli;
+namespace ZendDb\Adapter;
 
-use WiseDb\Adapter\AbstractAdapter;
-use WiseDb\Adapter\Exception\Mysqli as MysqliException;
-use WiseDb\WiseDb;
+use ZendDb\Adapter\AbstractAdapter;
+use ZendDb\Statement\Mysqli as MysqliStatement;
+use ZendDb\Adapter\Exception\Mysqli as MysqliException;
+use ZendDb\ZendDb;
 
 /**
  * @category   Zend
@@ -27,22 +28,22 @@ class Mysqli extends AbstractAdapter
      * @var array Associative array of datatypes to values 0, 1, or 2.
      */
     protected $_numericDataTypes = array(
-        WiseDb::INT_TYPE => WiseDb::INT_TYPE,
-        WiseDb::BIGINT_TYPE => WiseDb::BIGINT_TYPE,
-        WiseDb::FLOAT_TYPE => WiseDb::FLOAT_TYPE,
-        'INT' => WiseDb::INT_TYPE,
-        'INTEGER' => WiseDb::INT_TYPE,
-        'MEDIUMINT' => WiseDb::INT_TYPE,
-        'SMALLINT' => WiseDb::INT_TYPE,
-        'TINYINT' => WiseDb::INT_TYPE,
-        'BIGINT' => WiseDb::BIGINT_TYPE,
-        'SERIAL' => WiseDb::BIGINT_TYPE,
-        'DEC' => WiseDb::FLOAT_TYPE,
-        'DECIMAL' => WiseDb::FLOAT_TYPE,
-        'DOUBLE' => WiseDb::FLOAT_TYPE,
-        'DOUBLE PRECISION' => WiseDb::FLOAT_TYPE,
-        'FIXED' => WiseDb::FLOAT_TYPE,
-        'FLOAT' => WiseDb::FLOAT_TYPE
+        ZendDb::INT_TYPE => ZendDb::INT_TYPE,
+        ZendDb::BIGINT_TYPE => ZendDb::BIGINT_TYPE,
+        ZendDb::FLOAT_TYPE => ZendDb::FLOAT_TYPE,
+        'INT' => ZendDb::INT_TYPE,
+        'INTEGER' => ZendDb::INT_TYPE,
+        'MEDIUMINT' => ZendDb::INT_TYPE,
+        'SMALLINT' => ZendDb::INT_TYPE,
+        'TINYINT' => ZendDb::INT_TYPE,
+        'BIGINT' => ZendDb::BIGINT_TYPE,
+        'SERIAL' => ZendDb::BIGINT_TYPE,
+        'DEC' => ZendDb::FLOAT_TYPE,
+        'DECIMAL' => ZendDb::FLOAT_TYPE,
+        'DOUBLE' => ZendDb::FLOAT_TYPE,
+        'DOUBLE PRECISION' => ZendDb::FLOAT_TYPE,
+        'FIXED' => ZendDb::FLOAT_TYPE,
+        'FLOAT' => ZendDb::FLOAT_TYPE
     );
 
     /**
@@ -57,7 +58,7 @@ class Mysqli extends AbstractAdapter
      *
      * @return string Quoted string
      */
-    protected function _quote($value)
+    protected function _quote($value):string
     {
         if (is_int($value) || is_float($value)) {
             return $value;
@@ -89,8 +90,13 @@ class Mysqli extends AbstractAdapter
         $sql = 'SHOW TABLES';
         $queryResult = $this->getConnection()->query($sql);
         if ($queryResult) {
-            while ($row = $queryResult->fetch_row()) {
-                $result[] = $row[0];
+            while (true) {
+                $row = $queryResult->fetch_row();
+                if($row){
+                    $result[] = $row[0];
+                }else{
+                    break;
+                }
             }
             $queryResult->close();
         } else {
@@ -127,7 +133,7 @@ class Mysqli extends AbstractAdapter
      * @param string $schemaName OPTIONAL
      * @return array
      */
-    public function describeTable($tableName, $schemaName = null)
+    public function describeTable($tableName, $schemaName = null):array
     {
         /**
          * use INFORMATION_SCHEMA someday when
@@ -145,8 +151,13 @@ class Mysqli extends AbstractAdapter
          */
         $queryResult = $this->getConnection()->query($sql);
         if ($queryResult) {
-            while ($row = $queryResult->fetch_assoc()) {
-                $result[] = $row;
+            while (true) {
+                $row = $queryResult->fetch_assoc();
+                if($row){
+                    $result[] = $row;
+                }else{
+                    break;
+                }
             }
             $queryResult->close();
         } else {
@@ -224,7 +235,7 @@ class Mysqli extends AbstractAdapter
      * Creates a connection to the database.
      *
      * @return void
-     * @throws Zend_Db_Adapter_Mysqli_Exception
+     * @throws MysqliException
      */
     protected function _connect()
     {
@@ -284,9 +295,9 @@ class Mysqli extends AbstractAdapter
      *
      * @return boolean
      */
-    public function isConnected()
+    public function isConnected():bool
     {
-        return ((bool) ($this->_connection instanceof mysqli));
+        return ((bool) ($this->_connection instanceof \mysqli));
     }
 
     /**
@@ -306,7 +317,7 @@ class Mysqli extends AbstractAdapter
      * Prepare a statement and return a PDOStatement-like object.
      *
      * @param  string  $sql  SQL query
-     * @return Zend_Db_Statement_Mysqli
+     * @return MysqliStatement
      */
     public function prepare($sql)
     {
@@ -314,7 +325,7 @@ class Mysqli extends AbstractAdapter
         if ($this->_stmt) {
             $this->_stmt->close();
         }
-        $stmt = new Mysqli($this, $sql);
+        $stmt = new MysqliStatement($this, $sql);
         if ($stmt === false) {
             return false;
         }
@@ -391,15 +402,15 @@ class Mysqli extends AbstractAdapter
     public function setFetchMode($mode)
     {
         switch ($mode) {
-            case WiseDb::FETCH_LAZY:
-            case WiseDb::FETCH_ASSOC:
-            case WiseDb::FETCH_NUM:
-            case WiseDb::FETCH_BOTH:
-            case WiseDb::FETCH_NAMED:
-            case WiseDb::FETCH_OBJ:
+            case ZendDb::FETCH_LAZY:
+            case ZendDb::FETCH_ASSOC:
+            case ZendDb::FETCH_NUM:
+            case ZendDb::FETCH_BOTH:
+            case ZendDb::FETCH_NAMED:
+            case ZendDb::FETCH_OBJ:
                 $this->_fetchMode = $mode;
                 break;
-            case WiseDb::FETCH_BOUND: // bound to PHP variable
+            case ZendDb::FETCH_BOUND: // bound to PHP variable
                 throw new MysqliException('FETCH_BOUND is not supported yet');
                 break;
             default:
@@ -415,7 +426,7 @@ class Mysqli extends AbstractAdapter
      * @param int $offset OPTIONAL
      * @return string
      */
-    public function limit($sql, $count, $offset = 0)
+    public function limit($sql, $count, $offset = 0):string
     {
         $count = intval($count);
         if ($count <= 0) {
@@ -441,7 +452,7 @@ class Mysqli extends AbstractAdapter
      * @param string $type 'positional' or 'named'
      * @return bool
      */
-    public function supportsParameters($type)
+    public function supportsParameters($type):bool
     {
         switch ($type) {
             case 'positional':
@@ -457,7 +468,7 @@ class Mysqli extends AbstractAdapter
      *
      *@return string
      */
-    public function getServerVersion()
+    public function getServerVersion():string
     {
         $this->_connect();
         $version = $this->_connection->server_version;

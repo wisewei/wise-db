@@ -1,7 +1,7 @@
 <?php
-namespace WiseDb\Statement;
+namespace ZendDb\Statement;
 
-use WiseDb\Statement\Exception\Statement as StatementException;
+use ZendDb\Statement\Exception\Statement as StatementException;
 
 interface StatementInterface
 {

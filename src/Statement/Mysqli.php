@@ -1,16 +1,16 @@
 <?php
-namespace WiseDb\Statement;
+namespace ZendDb\Statement;
 
-use WiseDb\WiseDb;
-use WiseDb\Statement;
-use WiseDb\Statement\Exception\Mysqli as MysqliStatementException;
-use WiseDb\Statement\Exception\Statement as StatementException;
+use ZendDb\ZendDb;
+use ZendDb\Statement;
+use ZendDb\Statement\Exception\Mysqli as MysqliStatementException;
+use ZendDb\Statement\Exception\Statement as StatementException;
 
 /**
  * Extends for Mysqli
  *
  * @category   Zend
- * @package    WiseDb
+ * @package    ZendDb
  * @subpackage Statement
  * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
@@ -243,7 +243,7 @@ class Mysqli extends Statement
             case null: // end of data
             case false: // error occurred
                 $this->_stmt->reset();
-                return false;
+                return [];
             default:
             // fallthrough
         }
@@ -261,20 +261,20 @@ class Mysqli extends Statement
         }
 
         switch ($style) {
-            case WiseDb::FETCH_NUM:
+            case ZendDb::FETCH_NUM:
                 $row = $values;
                 break;
-            case WiseDb::FETCH_ASSOC:
+            case ZendDb::FETCH_ASSOC:
                 $row = array_combine($this->_keys, $values);
                 break;
-            case WiseDb::FETCH_BOTH:
+            case ZendDb::FETCH_BOTH:
                 $assoc = array_combine($this->_keys, $values);
                 $row = array_merge($values, $assoc);
                 break;
-            case WiseDb::FETCH_OBJ:
+            case ZendDb::FETCH_OBJ:
                 $row = (object) array_combine($this->_keys, $values);
                 break;
-            case WiseDb::FETCH_BOUND:
+            case ZendDb::FETCH_BOUND:
                 $assoc = array_combine($this->_keys, $values);
                 $row = array_merge($values, $assoc);
                 return $this->_fetchBound($row);

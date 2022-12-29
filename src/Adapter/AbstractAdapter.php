@@ -1,13 +1,13 @@
 <?php
-namespace WiseDb\Adapter;
+namespace ZendDb\Adapter;
 
-use WiseDb\DBException;
-use WiseDb\WiseDb;
-use WiseDb\Profiler;
-use WiseDb\Statement;
-use WiseDb\Statement\StatementInterface;
-use WiseDb\Adapter\Exception\Adapter as AdapterException;
-use WiseDb\Statement\Exception\Statement as StatementException;
+use ZendDb\DBException;
+use ZendDb\ZendDb;
+use ZendDb\Profiler;
+use ZendDb\Statement;
+use ZendDb\Statement\StatementInterface;
+use ZendDb\Adapter\Exception\Adapter as AdapterException;
+use ZendDb\Statement\Exception\Statement as StatementException;
 
 /**
  * Class for connecting to SQL databases and performing common operations.
@@ -33,7 +33,7 @@ abstract class AbstractAdapter
      *
      * @var int
      */
-    protected $_fetchMode = WiseDb::FETCH_ASSOC;
+    protected $_fetchMode = ZendDb::FETCH_ASSOC;
 
     /**
      * Query profiler object, of type Zend_Db_Profiler
@@ -53,13 +53,13 @@ abstract class AbstractAdapter
     /**
      * Specifies the case of column names retrieved in queries
      * Options
-     * WiseDb::CASE_NATURAL (default)
-     * WiseDb::CASE_LOWER
-     * WiseDb::CASE_UPPER
+     * ZendDb::CASE_NATURAL (default)
+     * ZendDb::CASE_LOWER
+     * ZendDb::CASE_UPPER
      *
      * @var integer
      */
-    protected $_caseFolding = WiseDb::CASE_NATURAL;
+    protected $_caseFolding = ZendDb::CASE_NATURAL;
 
     /**
      * Specifies whether the adapter automatically quotes identifiers.
@@ -74,7 +74,7 @@ abstract class AbstractAdapter
 
     /**
      * Keys are UPPERCASE SQL datatypes or the constants
-     * WiseDb::INT_TYPE, Zend_Db::BIGINT_TYPE, or Zend_Db::FLOAT_TYPE.
+     * ZendDb::INT_TYPE, Zend_Db::BIGINT_TYPE, or Zend_Db::FLOAT_TYPE.
      *
      * Values are:
      * 0 = 32-bit integer
@@ -84,9 +84,9 @@ abstract class AbstractAdapter
      * @var array Associative array of datatypes to values 0, 1, or 2.
      */
     protected $_numericDataTypes = array(
-        WiseDb::INT_TYPE => WiseDb::INT_TYPE,
-        WiseDb::BIGINT_TYPE => WiseDb::BIGINT_TYPE,
-        WiseDb::FLOAT_TYPE => WiseDb::FLOAT_TYPE
+        ZendDb::INT_TYPE => ZendDb::INT_TYPE,
+        ZendDb::BIGINT_TYPE => ZendDb::BIGINT_TYPE,
+        ZendDb::FLOAT_TYPE => ZendDb::FLOAT_TYPE
     );
 
     /** Weither or not that object can get serialized
@@ -129,8 +129,8 @@ abstract class AbstractAdapter
         $this->_checkRequiredOptions($config);
 
         $options = array(
-            WiseDb::CASE_FOLDING => $this->_caseFolding,
-            WiseDb::AUTO_QUOTE_IDENTIFIERS => $this->_autoQuoteIdentifiers
+            ZendDb::CASE_FOLDING => $this->_caseFolding,
+            ZendDb::AUTO_QUOTE_IDENTIFIERS => $this->_autoQuoteIdentifiers
         );
         $driverOptions = array();
 
@@ -165,39 +165,39 @@ abstract class AbstractAdapter
         $this->_config['driver_options'] = $driverOptions;
 
         // obtain the case setting, if there is one
-        if (array_key_exists(WiseDb::CASE_FOLDING, $options)) {
-            $case = (int) $options[WiseDb::CASE_FOLDING];
+        if (array_key_exists(ZendDb::CASE_FOLDING, $options)) {
+            $case = (int) $options[ZendDb::CASE_FOLDING];
             switch ($case) {
-                case WiseDb::CASE_LOWER:
-                case WiseDb::CASE_UPPER:
-                case WiseDb::CASE_NATURAL:
+                case ZendDb::CASE_LOWER:
+                case ZendDb::CASE_UPPER:
+                case ZendDb::CASE_NATURAL:
                     $this->_caseFolding = $case;
                     break;
                 default:
-                    throw new AdapterException('Case must be one of the following constants: ' . 'WiseDb::CASE_NATURAL, WiseDb::CASE_LOWER, WiseDb::CASE_UPPER');
+                    throw new AdapterException('Case must be one of the following constants: ' . 'ZendDb::CASE_NATURAL, ZendDb::CASE_LOWER, ZendDb::CASE_UPPER');
             }
         }
 
         // obtain quoting property if there is one
-        if (array_key_exists(WiseDb::AUTO_QUOTE_IDENTIFIERS, $options)) {
-            $this->_autoQuoteIdentifiers = (bool) $options[WiseDb::AUTO_QUOTE_IDENTIFIERS];
+        if (array_key_exists(ZendDb::AUTO_QUOTE_IDENTIFIERS, $options)) {
+            $this->_autoQuoteIdentifiers = (bool) $options[ZendDb::AUTO_QUOTE_IDENTIFIERS];
         }
 
         // obtain allow serialization property if there is one
-        if (array_key_exists(WiseDb::ALLOW_SERIALIZATION, $options)) {
-            $this->_allowSerialization = (bool) $options[WiseDb::ALLOW_SERIALIZATION];
+        if (array_key_exists(ZendDb::ALLOW_SERIALIZATION, $options)) {
+            $this->_allowSerialization = (bool) $options[ZendDb::ALLOW_SERIALIZATION];
         }
 
         // obtain auto reconnect on unserialize property if there is one
-        if (array_key_exists(WiseDb::AUTO_RECONNECT_ON_UNSERIALIZE, $options)) {
-            $this->_autoReconnectOnUnserialize = (bool) $options[WiseDb::AUTO_RECONNECT_ON_UNSERIALIZE];
+        if (array_key_exists(ZendDb::AUTO_RECONNECT_ON_UNSERIALIZE, $options)) {
+            $this->_autoReconnectOnUnserialize = (bool) $options[ZendDb::AUTO_RECONNECT_ON_UNSERIALIZE];
         }
 
         // create a profiler object
         $profiler = false;
-        if (array_key_exists(WiseDb::PROFILER, $this->_config)) {
-            $profiler = $this->_config[WiseDb::PROFILER];
-            unset($this->_config[WiseDb::PROFILER]);
+        if (array_key_exists(ZendDb::PROFILER, $this->_config)) {
+            $profiler = $this->_config[ZendDb::PROFILER];
+            unset($this->_config[ZendDb::PROFILER]);
         }
         $this->setProfiler($profiler);
     }
@@ -463,9 +463,14 @@ abstract class AbstractAdapter
     {
         $stmt = $this->query($sql, $bind);
         $data = array();
-        while ($row = $stmt->fetch(WiseDb::FETCH_ASSOC)) {
-            $tmp = array_values(array_slice($row, 0, 1));
-            $data[$tmp[0]] = $row;
+        while (true) {
+            $row = $stmt->fetch(ZendDb::FETCH_ASSOC);
+            if($row){
+                $tmp = array_values(array_slice($row, 0, 1));
+                $data[$tmp[0]] = $row;
+            }else{
+                break;
+            }
         }
         return $data;
     }
@@ -483,7 +488,7 @@ abstract class AbstractAdapter
     public function fetchCol(string $sql, $bind = array()): array
     {
         $stmt = $this->query($sql, $bind);
-        return $stmt->fetchAll(WiseDb::FETCH_COLUMN, 0);
+        return $stmt->fetchAll(ZendDb::FETCH_COLUMN, 0);
     }
 
     /**
@@ -501,8 +506,13 @@ abstract class AbstractAdapter
     {
         $stmt = $this->query($sql, $bind);
         $data = array();
-        while ($row = $stmt->fetch(WiseDb::FETCH_NUM)) {
-            $data[$row[0]] = $row[1];
+        while (true) {
+            $row = $stmt->fetch(ZendDb::FETCH_NUM);
+            if($row){
+                $data[$row[0]] = $row[1];
+            }else{
+                break;
+            }
         }
         return $data;
     }
@@ -561,10 +571,10 @@ abstract class AbstractAdapter
         if ($type !== null && array_key_exists($type = strtoupper($type), $this->_numericDataTypes)) {
             $quotedValue = '0';
             switch ($this->_numericDataTypes[$type]) {
-                case WiseDb::INT_TYPE: // 32-bit integer
+                case ZendDb::INT_TYPE: // 32-bit integer
                     $quotedValue = (string) intval($value);
                     break;
-                case WiseDb::BIGINT_TYPE: // 64-bit integer
+                case ZendDb::BIGINT_TYPE: // 64-bit integer
                     // ANSI SQL-style hex literals (e.g. x'[\dA-F]+')
                     // are not supported here, because these are string
                     // literals, not numeric literals.
@@ -579,7 +589,7 @@ abstract class AbstractAdapter
                         $quotedValue = $matches[1];
                     }
                     break;
-                case WiseDb::FLOAT_TYPE: // float or decimal
+                case ZendDb::FLOAT_TYPE: // float or decimal
                     $quotedValue = sprintf('%F', $value);
             }
             return $quotedValue;
@@ -774,13 +784,13 @@ abstract class AbstractAdapter
     public function foldCase($key)
     {
         switch ($this->_caseFolding) {
-            case WiseDb::CASE_LOWER:
+            case ZendDb::CASE_LOWER:
                 $value = strtolower((string) $key);
                 break;
-            case WiseDb::CASE_UPPER:
+            case ZendDb::CASE_UPPER:
                 $value = strtoupper((string) $key);
                 break;
-            case WiseDb::CASE_NATURAL:
+            case ZendDb::CASE_NATURAL:
             default:
                 $value = (string) $key;
         }

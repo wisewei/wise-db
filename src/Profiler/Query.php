@@ -1,5 +1,5 @@
 <?php
-namespace WiseDb\Profiler;
+namespace ZendDb\Profiler;
 
 class Query
 {

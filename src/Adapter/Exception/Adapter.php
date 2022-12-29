@@ -1,7 +1,7 @@
 <?php
-namespace WiseDb\Adapter\Exception;
+namespace ZendDb\Adapter\Exception;
 
-use WiseDb\DBException;
+use ZendDb\DBException;
 
 class Adapter extends DBException
 {

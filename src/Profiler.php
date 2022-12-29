@@ -1,8 +1,8 @@
 <?php
-namespace WiseDb;
+namespace ZendDb;
 
-use WiseDb\Profiler\Query as QueryProfiler;
-use WiseDb\Profiler\ProfilerException;
+use ZendDb\Profiler\Query as QueryProfiler;
+use ZendDb\Profiler\ProfilerException;
 
 /**
  * @category   Zend

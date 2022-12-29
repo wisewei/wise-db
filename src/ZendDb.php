@@ -1,10 +1,11 @@
 <?php
-namespace WiseDb;
+namespace ZendDb;
 
-use WiseDb\Adapter\AbstractAdapter;
-use WiseDb\Adapter\Oracle as OracleAdapter;
+use ZendDb\Adapter\AbstractAdapter;
+use ZendDb\Adapter\Oracle as OracleAdapter;
+use ZendDb\Adapter\Mysqli as MysqliAdapter;
 
-class WiseDb
+class ZendDb
 {
 
     /**
@@ -236,7 +237,7 @@ class WiseDb
      * @return AbstractAdapter
      * @throws DBException
      */
-    public static function factory($adapter, $config = array())
+    public static function factory($adapterName, $config = array())
     {
 
         /*
@@ -249,14 +250,26 @@ class WiseDb
         /*
          * Verify that an adapter name has been specified.
          */
-        if (! is_string($adapter) || empty($adapter)) {
+        if (! is_string($adapterName) || empty($adapterName)) {
             throw new DBException('Adapter name must be specified in a string');
         }
-
-        /*
-         * Create an instance of the adapter class.
-         * Pass the config to the adapter class constructor.
-         */
-        return new OracleAdapter($config);
+        $adapter = null;
+        switch ($adapterName){
+            case 'oracle':
+            case 'oci8':
+                $adapter = new OracleAdapter($config);
+                break;
+            case 'mysql':
+            case 'mysqli':
+            case 'MYSQL':
+            case 'MYSQLI':
+                $adapter = new MysqliAdapter($config);
+                break;
+            default:
+        }
+        if(! $adapter instanceof AbstractAdapter){
+            throw new DBException("Adapter class '$adapterName' does not extend Zend_Db_Adapter_Abstract");
+        }
+        return $adapter;
     }
 }
