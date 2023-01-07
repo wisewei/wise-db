@@ -17,11 +17,8 @@
 	},
 	"autoload" : {
 		"psr-4" : {
-			"WiseDb\\" : "src/"
+			"ZendDb\\" : "src/"
 		}
-	},
-	"suggest" : {
-
 	},
 	"extra" : {
 		"branch-alias" : {
